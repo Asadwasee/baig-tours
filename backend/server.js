@@ -1,13 +1,20 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Environment variables load karein
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 // Database connection
 connectDB();
@@ -21,6 +28,8 @@ app.use(express.json());
 // Main App Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
