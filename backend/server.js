@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import dns from 'dns';
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 // Environment variables load karein
 dotenv.config();
@@ -20,7 +23,7 @@ app.get('/', (req, res) => {
   res.send('Baig Tours MERN Backend is running smoothly...');
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
