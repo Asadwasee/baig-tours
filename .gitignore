@@ -1,4 +1,7 @@
+node_modules/
+.env
+.CLAUDE.md
+.AGENT.md
+.uploads
 .mcp.json
 .windsurfrules
-AGENT.md
-CLAUDE.md 
