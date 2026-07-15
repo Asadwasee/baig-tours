@@ -39,29 +39,123 @@ export const createPackage = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // @desc    Get all packages
 // @route   GET /api/packages
 // @access  Public
 export const getPackages = async (req, res) => {
   try {
-    const packages = await Package.find({});
-    res.json(packages);
+    const { 
+      search, 
+      destination, 
+      category, 
+      duration, 
+      minPrice, 
+      maxPrice, 
+      sort 
+    } = req.query;
+
+    // 1. DYNAMIC QUERY BUILDER
+    let query = {};
+
+    // Search by Title or Destination (Regex / Case-Insensitive)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { destination: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Filter by Destination
+    if (destination) {
+      query.destination = { $regex: destination, $options: 'i' };
+    }
+
+    // Filter by Category
+    if (category) {
+      query.category = category;
+    }
+
+    // Filter by Duration (e.g., "5 Days")
+    if (duration) {
+      query.duration = { $regex: duration, $options: 'i' };
+    }
+
+    // Intelligent Price Filter (Checks both discountPrice and base price)
+    if (minPrice || maxPrice) {
+      const min = Number(minPrice) || 0;
+      const max = Number(maxPrice) || Infinity;
+
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          {
+            discountPrice: { $exists: true, $ne: null },
+            discountPrice: { $gte: min, $lte: max }
+          },
+          {
+            discountPrice: null,
+            price: { $gte: min, $lte: max }
+          }
+        ]
+      });
+    }
+
+    // 2. SORTING LOGIC
+    let sortQuery = {};
+    if (sort) {
+      if (sort === 'latest') {
+        sortQuery = { createdAt: -1 };
+      } else if (sort === 'price-low') {
+        sortQuery = { price: 1 };
+      } else if (sort === 'price-high') {
+        sortQuery = { price: -1 };
+      } else if (sort === 'popular') {
+        sortQuery = { isFeatured: -1, availableSeats: 1 }; // Featured & almost booked first
+      }
+    } else {
+      sortQuery = { createdAt: -1 }; // Default: Latest first
+    }
+
+    // Query Execute
+    const packages = await Package.find(query).sort(sortQuery);
+    
+    res.json({
+      count: packages.length,
+      packages
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 // @desc    Get single package by ID
 // @route   GET /api/packages/:id
 // @access  Public
 export const getPackageById = async (req, res) => {
   try {
     const tourPackage = await Package.findById(req.params.id);
-    if (tourPackage) {
-      res.json(tourPackage);
-    } else {
-      res.status(404).json({ message: 'Package not found' });
+
+    if (!tourPackage) {
+      return res.status(404).json({ message: 'Tour package not found' });
     }
+
+    // FETCH RELATED PACKAGES (Same destination OR category, excluding current package)
+    const relatedPackages = await Package.find({
+      _id: { $ne: tourPackage._id }, // Current package ko nikal dein
+      $or: [
+        { destination: tourPackage.destination },
+        { category: tourPackage.category }
+      ]
+    })
+    .limit(3) // Sirf 3 packages recommend karein
+    .select('title slug destination price discountPrice duration images availableSeats');
+
+    res.json({
+      package: tourPackage,
+      relatedPackages
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -144,6 +238,7 @@ export const duplicatePackage = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
