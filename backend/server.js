@@ -5,8 +5,6 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import connectDB from './config/db.js';
 import blogRoutes from './routes/blogRoutes.js';
-
-
 // Environment variables
 dotenv.config();
 
