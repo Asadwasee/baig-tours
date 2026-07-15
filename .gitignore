@@ -5,3 +5,5 @@ node_modules/
 .uploads
 .mcp.json
 .windsurfrules
+.cursor
+.agents
