@@ -30,6 +30,10 @@ const customerSchema = new mongoose.Schema(
       default: 'Pakistan',
       trim: true,
     },
+    cnic: {
+      type: String,
+      trim: true,
+    },
     passportNumber: {
       type: String,
       trim: true,

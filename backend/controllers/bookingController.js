@@ -38,7 +38,8 @@ export const createBooking = async (req, res) => {
           fullName: customerDetails.fullName || customerDetails.name,
           email: customerDetails.email.toLowerCase(),
           phone: customerDetails.phone,
-          cnic: customerDetails.cnic || ''
+          cnic: customerDetails.cnic || customerDetails.passportNumber || '',
+          passportNumber: customerDetails.passportNumber || customerDetails.cnic || '',
         });
       }
       finalCustomerId = existingCustomer._id;
@@ -159,6 +160,9 @@ export const updateBooking = async (req, res) => {
         }
         if (req.body.customerDetails.cnic) {
           customer.cnic = req.body.customerDetails.cnic;
+        }
+        if (req.body.customerDetails.passportNumber) {
+          customer.passportNumber = req.body.customerDetails.passportNumber;
         }
         await customer.save(); // Customer ka naya data save ho gaya
       }
