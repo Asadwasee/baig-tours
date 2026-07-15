@@ -1,5 +1,10 @@
 node_modules/
 .env
+.CLAUDE.md
+.AGENT.md
+.uploads
+.mcp.json
+.windsurfrules
 .cursor/
-.agent/
-agent/
+.agents/
+.jetro/

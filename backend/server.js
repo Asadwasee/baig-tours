@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import blogRoutes from './routes/blogRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,9 @@ connectDB();
 
 const app = express();
 
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -30,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
