@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.route('/')
   .get(protect, getBookings)
-  .post(protect, createBooking);
+  .post(createBooking);
 
 router.route('/:id')
   .get(protect, getBookingById)

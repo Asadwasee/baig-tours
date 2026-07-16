@@ -7,86 +7,128 @@ import Package from '../models/Package.js';
 // @access  Private/Admin
 export const createBooking = async (req, res) => {
   try {
-    const { 
-      customer, // Existing Customer ID (Optional)
-      customerDetails, // Dynamic customer details { name, email, phone, cnic }
-      package: packageId, 
-      travelDate, 
-      adults, 
-      children, 
-      totalAmount, 
-      ...rest 
+    const {
+      customer,
+      customerDetails,
+      package: packageId,
+      travelDate,
+      adults,
+      children,
+      totalAmount,
+      ...rest
     } = req.body;
 
-    // 1. DYNAMIC CUSTOMER HANDLING
-    let finalCustomerId;
+    const normalizedName = typeof customerDetails?.fullName === 'string'
+      ? customerDetails.fullName.trim()
+      : typeof customerDetails?.name === 'string'
+        ? customerDetails.name.trim()
+        : '';
+    const normalizedEmail = typeof customerDetails?.email === 'string'
+      ? customerDetails.email.trim().toLowerCase()
+      : '';
+    const normalizedPhone = typeof customerDetails?.phone === 'string'
+      ? customerDetails.phone.trim()
+      : '';
 
     if (customer) {
-      // Agar direct existing Customer ID di gayi hai
       const customerExists = await Customer.findById(customer);
       if (!customerExists) {
         return res.status(404).json({ message: 'Customer not found with this ID' });
       }
+    } else if (!normalizedName || !normalizedEmail || !normalizedPhone) {
+      return res.status(400).json({ message: 'Please provide full name, email, and phone number' });
+    }
+
+    if (!packageId) {
+      return res.status(400).json({ message: 'Please select a tour package' });
+    }
+
+    if (!travelDate) {
+      return res.status(400).json({ message: 'Travel date is required' });
+    }
+
+    const parsedTravelDate = new Date(travelDate);
+    if (Number.isNaN(parsedTravelDate.getTime())) {
+      return res.status(400).json({ message: 'Travel date is invalid' });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (parsedTravelDate < today) {
+      return res.status(400).json({ message: 'Travel date must be today or later' });
+    }
+
+    const parsedAdults = Number(adults);
+    const parsedChildren = Number(children || 0);
+    if (!Number.isInteger(parsedAdults) || parsedAdults < 1) {
+      return res.status(400).json({ message: 'At least one adult is required' });
+    }
+
+    if (!Number.isInteger(parsedChildren) || parsedChildren < 0) {
+      return res.status(400).json({ message: 'Children count cannot be negative' });
+    }
+
+    const totalSeatsRequested = parsedAdults + parsedChildren;
+    if (totalSeatsRequested < 1) {
+      return res.status(400).json({ message: 'Please select at least one traveler' });
+    }
+
+    const parsedTotalAmount = totalAmount === undefined || totalAmount === '' ? null : Number(totalAmount);
+    if (parsedTotalAmount !== null && (!Number.isFinite(parsedTotalAmount) || parsedTotalAmount < 0)) {
+      return res.status(400).json({ message: 'Total amount must be a valid positive number' });
+    }
+
+    let finalCustomerId;
+    if (customer) {
       finalCustomerId = customer;
-    } else if (customerDetails && customerDetails.email) {
-      // Agar customerDetails di hain, to pehle email se check karein
-      let existingCustomer = await Customer.findOne({ email: customerDetails.email.toLowerCase() });
-      
+    } else {
+      let existingCustomer = await Customer.findOne({ email: normalizedEmail });
       if (!existingCustomer) {
-        // Agar pehle se exist nahi karta to naya customer create karein
         existingCustomer = await Customer.create({
-          fullName: customerDetails.fullName || customerDetails.name,
-          email: customerDetails.email.toLowerCase(),
-          phone: customerDetails.phone,
-          cnic: customerDetails.cnic || customerDetails.passportNumber || '',
-          passportNumber: customerDetails.passportNumber || customerDetails.cnic || '',
+          fullName: normalizedName,
+          email: normalizedEmail,
+          phone: normalizedPhone,
+          cnic: customerDetails?.cnic || customerDetails?.passportNumber || '',
+          passportNumber: customerDetails?.passportNumber || customerDetails?.cnic || '',
         });
       }
       finalCustomerId = existingCustomer._id;
-    } else {
-      return res.status(400).json({ message: 'Please provide either customer ID or customerDetails (name, email, phone)' });
     }
 
-    // 2. VALIDATE PACKAGE AND CHECK AVAILABLE SEATS
     const packageExists = await Package.findById(packageId);
     if (!packageExists) {
       return res.status(404).json({ message: 'Package not found' });
     }
 
-    const totalSeatsRequested = (adults || 0) + (children || 0);
     if (packageExists.availableSeats < totalSeatsRequested) {
-      return res.status(400).json({ 
-        message: `Booking failed. Only ${packageExists.availableSeats} seats are available for this package.` 
+      return res.status(400).json({
+        message: `Booking failed. Only ${packageExists.availableSeats} seats are available for this package.`
       });
     }
 
-    // 3. AUTO-CALCULATE AMOUNT IF NOT PROVIDED
     const activePrice = packageExists.discountPrice || packageExists.price;
-    const finalAmount = totalAmount || (activePrice * totalSeatsRequested);
+    const finalAmount = parsedTotalAmount ?? (activePrice * totalSeatsRequested);
 
-    // 4. CREATE BOOKING
     const booking = await Booking.create({
       customer: finalCustomerId,
       package: packageId,
-      travelDate,
-      adults,
-      children: children || 0,
+      travelDate: parsedTravelDate,
+      adults: parsedAdults,
+      children: parsedChildren,
       totalAmount: finalAmount,
       ...rest,
     });
 
-    // 5. UPDATE PACKAGE SEATS INVENTORY (Deduct Seats)
     packageExists.availableSeats -= totalSeatsRequested;
     await packageExists.save();
 
-    // 6. POPULATE AND SEND RESPONSE
     const populatedBooking = await Booking.findById(booking._id)
       .populate('customer', 'fullName email phone')
       .populate('package', 'title destination price');
 
     res.status(201).json(populatedBooking);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
