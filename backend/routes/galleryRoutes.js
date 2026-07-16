@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../middlewares/upload.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js'; // Auth protection import ki
 import {
     uploadMedia,
     getAllMedia,
