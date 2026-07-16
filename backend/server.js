@@ -11,6 +11,7 @@ import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import { securityMiddleware, sanitizeMiddleware, apiLimiter } from './middlewares/security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,12 +24,21 @@ connectDB();
 
 const app = express();
 
+// --- SECURITY & CORE MIDDLEWARES ---
+app.use(securityMiddleware); // Helmet (Must be early)
+app.use(cors());
+
+// Parse incoming JSON requests with 10kb body limit
+app.use(express.json({ limit: '10kb' })); 
+
+// Sanitize inputs AFTER parsing the body (Prevents NoSQL Injection)
+app.use(sanitizeMiddleware); 
+
+// Rate limiting for API paths
+app.use('/api/', apiLimiter);
+
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Middlewares
-app.use(cors());
-app.use(express.json());
 
 // Main App Routes
 app.use('/api/auth', authRoutes);
