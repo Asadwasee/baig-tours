@@ -1,5 +1,6 @@
 import express from 'express';
-import upload from '../middleware/upload.js';
+import upload from '../middlewares/upload.js'; 
+import { protect } from '../middlewares/authMiddleware.js';
 import {
     createBlog,
     getAllBlogs,
@@ -11,14 +12,14 @@ import {
 
 const router = express.Router();
 
-// Routes with image upload
-router.post('/create', upload.single('featuredImage'), createBlog);
-router.put('/update/:id', upload.single('featuredImage'), updateBlog);
+// 1. Protected Admin Routes (Requires Admin/User JWT token & Handles Cloudinary)
+router.post('/create', protect, upload.single('featuredImage'), createBlog);
+router.put('/update/:id', protect, upload.single('featuredImage'), updateBlog);
+router.delete('/delete/:id', protect, deleteBlog);
 
-// Routes without image upload
+// 2. Public Visitor Routes (No Auth required)
 router.get('/get', getAllBlogs);
 router.get('/slug/:slug', getBlogBySlug);
 router.get('/get/:id', getBlogById);
-router.delete('/delete/:id', deleteBlog);
 
 export default router;

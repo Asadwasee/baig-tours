@@ -32,7 +32,7 @@ const blogSchema = new mongoose.Schema({
     category: {
         type: String,
         required: [true, 'Category is required'],
-        enum: ['technology', 'health', 'business', 'education', 'lifestyle', 'travel', 'food', 'fashion', 'sports', 'other']
+        enum: ['travel-tips', 'destinations', 'food-guides', 'road-trips', 'hotel-reviews', 'news', 'other']
     },
     tags: [{
         type: String,
@@ -59,5 +59,4 @@ blogSchema.pre('save', function() {
 });
 
 const Blog = mongoose.model('Blog', blogSchema);
-
 export default Blog;
