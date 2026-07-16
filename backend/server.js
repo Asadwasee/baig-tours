@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import connectDB from './config/db.js';
 import blogRoutes from './routes/blogRoutes.js';
+import galleryRoutes from './routes/galleryRoutes.js';
+
 // Environment variables
 dotenv.config();
 
@@ -24,6 +26,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/blogs', blogRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
