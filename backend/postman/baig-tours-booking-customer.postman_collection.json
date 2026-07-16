@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Baig Tours - Booking & Customer API",
-    "description": "Collection for auth, packages, customers, and bookings endpoints",
+    "name": "Baig Tours - Booking, Customer & Admin API",
+    "description": "Collection for auth, packages, customers, bookings, blogs, and dashboard endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -27,6 +27,11 @@
     },
     {
       "key": "bookingId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "blogId",
       "value": "",
       "type": "string"
     }
@@ -63,6 +68,8 @@
                   "const json = pm.response.json();",
                   "if (json.token) {",
                   "  pm.collectionVariables.set('token', json.token);",
+                  "} else if (json.data && json.data.token) {",
+                  "  pm.collectionVariables.set('token', json.data.token);",
                   "}" 
                 ],
                 "type": "text/javascript"
@@ -235,6 +242,101 @@
               "raw": "{{baseUrl}}/api/bookings",
               "host": ["{{baseUrl}}"],
               "path": ["api", "bookings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blogs",
+      "item": [
+        {
+          "name": "Get All Blogs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blogs"]
+            }
+          }
+        },
+        {
+          "name": "Create Blog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json._id) {",
+                  "  pm.collectionVariables.set('blogId', json._id);",
+                  "} else if (json.data && json.data._id) {",
+                  "  pm.collectionVariables.set('blogId', json.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Discovering Fairy Meadows\",\n  \"content\": \"Fairy Meadows is a beautiful grassland near Nanga Parbat.\",\n  \"category\": \"Adventure\",\n  \"author\": \"Admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blogs"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Blog",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blogs", "{{blogId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Blog",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs/{{blogId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blogs", "{{blogId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "summary"]
             }
           }
         }
