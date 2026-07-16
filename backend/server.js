@@ -10,6 +10,7 @@ import packageRoutes from './routes/packageRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +36,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
