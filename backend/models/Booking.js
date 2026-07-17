@@ -21,6 +21,16 @@ const bookingSchema = new mongoose.Schema(
     travelDate: {
       type: Date,
       required: [true, 'Travel date is required'],
+      validate: {
+        validator: (value) => {
+          if (!value) return false;
+          const selectedDate = new Date(value);
+          const startOfToday = new Date();
+          startOfToday.setHours(0, 0, 0, 0);
+          return selectedDate >= startOfToday;
+        },
+        message: 'Travel date must be today or later',
+      },
     },
     adults: {
       type: Number,
