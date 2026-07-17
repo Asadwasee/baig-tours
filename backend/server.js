@@ -14,8 +14,6 @@ import galleryRoutes from './routes/galleryRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import { securityMiddleware, sanitizeMiddleware, apiLimiter } from './middlewares/security.js';
-import dns from 'dns';
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
