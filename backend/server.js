@@ -13,6 +13,7 @@ import blogRoutes from './routes/blogRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
 import { securityMiddleware, sanitizeMiddleware, apiLimiter } from './middlewares/security.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +53,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {

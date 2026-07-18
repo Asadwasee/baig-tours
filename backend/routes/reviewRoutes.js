@@ -1,4 +1,5 @@
 import express from 'express';
+import { validateFields, reviewValidationRules } from '../middlewares/validation.js';
 import {
     createReview,
     getApprovedReviews,
@@ -13,14 +14,13 @@ import {
 
 const router = express.Router();
 
-router.post('/create_review', createReview);  
-router.get('/approved_reviews', getApprovedReviews); 
-router.get('/review/:id', getReviewById);  
-router.get('/admin/all', getAllReviewsAdmin); 
-router.put('/admin/approve/:id', approveReview);  
-router.put('/admin/reject/:id', rejectReview); 
+router.get('/approved_reviews', getApprovedReviews);
+router.get('/review/:id', getReviewById);
+router.post('/create_review', reviewValidationRules(), validateFields, createReview);
+router.get('/admin/all', getAllReviewsAdmin);
+router.put('/admin/approve/:id', approveReview);
+router.put('/admin/reject/:id', rejectReview);
 router.delete('/admin/delete/:id', deleteReview);
-router.put('/admin/hide/:id', hideReview);  
-router.put('/admin/update/:id', updateReview);
-
+router.put('/admin/hide/:id', hideReview);
+router.put('/admin/update/:id', reviewValidationRules(), validateFields, updateReview);
 export default router;
