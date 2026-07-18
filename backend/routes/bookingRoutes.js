@@ -7,12 +7,13 @@ import {
   deleteBooking,
 } from '../controllers/bookingController.js';
 import { protect } from '../middlewares/authMiddleware.js';
+import { bookingValidationRules, validateFields } from '../middlewares/validation.js';
 
 const router = express.Router();
 
 router.route('/')
   .get(protect, getBookings)
-  .post(createBooking);
+  .post(bookingValidationRules, validateFields, createBooking);
 
 router.route('/:id')
   .get(protect, getBookingById)

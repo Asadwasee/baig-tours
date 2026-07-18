@@ -1,6 +1,12 @@
 import Booking from '../models/Booking.js';
 import Customer from '../models/Customer.js';
 import Package from '../models/Package.js';
+import {
+  getBookingStatusLabel,
+  getStatusTransitionMessage,
+  isValidBookingStatus,
+} from '../utils/bookingStatus.js';
+import { sendBookingStatusEmail } from '../utils/sendEmail.js';
 
 // @desc    Create a booking
 // @route   POST /api/bookings
@@ -171,13 +177,16 @@ export const getBookingById = async (req, res) => {
 // @access  Private/Admin
 export const updateBooking = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id); //
+    const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' }); //[cite: 1]
+      return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // 1. Seats restoration check (agar status cancel ho rha ho)
+    if (req.body.status && !isValidBookingStatus(req.body.status)) {
+      return res.status(400).json({ message: 'Invalid booking status' });
+    }
+
     if (req.body.status === 'cancelled' && booking.status !== 'cancelled') {
       const tourPackage = await Package.findById(booking.package);
       if (tourPackage) {
@@ -187,9 +196,8 @@ export const updateBooking = async (req, res) => {
       }
     }
 
-    // 2. DYNAMIC CUSTOMER UPDATE LOGIC (Naam aur baqi details update karne ke liye)
     if (req.body.customerDetails) {
-      const customer = await Customer.findById(booking.customer); //[cite: 1]
+      const customer = await Customer.findById(booking.customer);
       if (customer) {
         if (req.body.customerDetails.fullName) {
           customer.fullName = req.body.customerDetails.fullName;
@@ -206,22 +214,35 @@ export const updateBooking = async (req, res) => {
         if (req.body.customerDetails.passportNumber) {
           customer.passportNumber = req.body.customerDetails.passportNumber;
         }
-        await customer.save(); // Customer ka naya data save ho gaya
+        await customer.save();
       }
     }
 
-    // 3. Booking ke apne fields update karein
-    Object.assign(booking, req.body); //[cite: 1]
-    const updatedBooking = await booking.save(); //[cite: 1]
+    const previousStatus = booking.status;
+    Object.assign(booking, req.body);
+    const updatedBooking = await booking.save();
 
-    // Populated data return karein taake updated values nazar aayein
-    const populatedBooking = await Booking.findById(updatedBooking._id) //[cite: 1]
-      .populate('customer', 'fullName email phone') //[cite: 1]
-      .populate('package', 'title destination price'); //[cite: 1]
+    if (req.body.status && req.body.status !== previousStatus) {
+      const customer = await Customer.findById(updatedBooking.customer);
+      const statusLabel = getBookingStatusLabel(req.body.status);
+      const statusMessage = getStatusTransitionMessage(req.body.status);
 
-    res.json(populatedBooking); //[cite: 1]
+      await sendBookingStatusEmail({
+        to: customer?.email || process.env.EMAIL_TO || 'admin@baigtours.com',
+        customerName: customer?.fullName || 'Customer',
+        bookingId: updatedBooking._id.toString(),
+        status: statusLabel,
+        message: statusMessage,
+      });
+    }
+
+    const populatedBooking = await Booking.findById(updatedBooking._id)
+      .populate('customer', 'fullName email phone')
+      .populate('package', 'title destination price');
+
+    res.json(populatedBooking);
   } catch (error) {
-    res.status(500).json({ message: error.message }); //[cite: 1]
+    res.status(500).json({ message: error.message });
   }
 };
 // @desc    Delete booking

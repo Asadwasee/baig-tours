@@ -4,12 +4,18 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
+import {
+  securityMiddleware,
+  sanitizeMiddleware,
+  apiLimiter,
+} from './middlewares/securityMiddleware.js';
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,8 +32,11 @@ const app = express();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Middlewares
+app.use(securityMiddleware);
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
+app.use(sanitizeMiddleware);
+app.use('/api', apiLimiter);
 
 // Main App Routes
 app.use('/api/auth', authRoutes);
@@ -35,6 +44,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {

@@ -8,12 +8,13 @@ import {
     updateBlog,
     deleteBlog
 } from '../controllers/blogController.js';
+import { blogValidationRules, validateFields } from '../middlewares/validation.js';
 
 const router = express.Router();
 
 // Routes with image upload
-router.post('/create', upload.single('featuredImage'), createBlog);
-router.put('/update/:id', upload.single('featuredImage'), updateBlog);
+router.post('/create', upload.single('featuredImage'), blogValidationRules, validateFields, createBlog);
+router.put('/update/:id', upload.single('featuredImage'), blogValidationRules, validateFields, updateBlog);
 
 // Routes without image upload
 router.get('/get', getAllBlogs);
