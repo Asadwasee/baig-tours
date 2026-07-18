@@ -7,4 +7,12 @@ export interface TourPackage {
   duration: string;
   departureDate: string;
   price: number;
+
+  // Optional (for API integration later)
+  originalPrice?: number;
+  discountPrice?: number;
+  availableSeats?: number;
+  rating?: number;
+  totalReviews?: number;
+  isFeatured?: boolean;
 }
