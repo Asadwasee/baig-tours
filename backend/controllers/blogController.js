@@ -1,8 +1,8 @@
 import Blog from '../models/Blog.js';
-import fs from 'fs';
-import path from 'path';
 
-// CREATE BLOG
+// @desc    Create a new blog
+// @route   POST /api/blogs/create
+// @access  Private/Admin
 export const createBlog = async (req, res) => {
     try {
         const {
@@ -17,21 +17,21 @@ export const createBlog = async (req, res) => {
             isPublished
         } = req.body;
 
-        let featuredImage = '';
-        if (req.file) {
-            featuredImage = `/uploads/${req.file.filename}`;
-        }
-
+        // Validation for required fields
         if (!title || !content || !category) {
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             return res.status(400).json({
                 success: false,
                 message: 'Title, content and category are required'
             });
         }
 
+        // Direct Cloudinary secure URL handling
+        let featuredImage = '';
+        if (req.file) {
+            featuredImage = req.file.path; 
+        }
+
+        // Slug management
         let blogSlug = slug;
         if (!blogSlug) {
             blogSlug = title
@@ -42,15 +42,13 @@ export const createBlog = async (req, res) => {
 
         const existingBlog = await Blog.findOne({ slug: blogSlug });
         if (existingBlog) {
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             return res.status(400).json({
                 success: false,
                 message: 'Slug already exists'
             });
         }
 
+        // Form-Data String parsing safety guards
         let tagsArray = tags;
         if (typeof tags === 'string') {
             tagsArray = tags.split(',').map(tag => tag.trim());
@@ -85,16 +83,16 @@ export const createBlog = async (req, res) => {
         });
     } catch (error) {
         console.error('Create Blog Error:', error);
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(500).json({
             success: false,
             message: error.message || 'Server error'
         });
     }
 };
-// UPDATE BLOG
+
+// @desc    Update a blog
+// @route   PUT /api/blogs/update/:id
+// @access  Private/Admin
 export const updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,9 +100,6 @@ export const updateBlog = async (req, res) => {
 
         const existingBlog = await Blog.findById(id);
         if (!existingBlog) {
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             return res.status(404).json({
                 success: false,
                 message: 'Blog not found'
@@ -112,13 +107,7 @@ export const updateBlog = async (req, res) => {
         }
 
         if (req.file) {
-            if (existingBlog.featuredImage) {
-                const oldImagePath = path.join('uploads', path.basename(existingBlog.featuredImage));
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
-            }
-            updateData.featuredImage = `/uploads/${req.file.filename}`;
+            updateData.featuredImage = req.file.path;
         }
 
         if (updateData.tags && typeof updateData.tags === 'string') {
@@ -139,9 +128,6 @@ export const updateBlog = async (req, res) => {
                 _id: { $ne: id }
             });
             if (slugExists) {
-                if (req.file) {
-                    fs.unlinkSync(req.file.path);
-                }
                 return res.status(400).json({
                     success: false,
                     message: 'Slug already exists'
@@ -162,16 +148,16 @@ export const updateBlog = async (req, res) => {
         });
     } catch (error) {
         console.error('Update Blog Error:', error);
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(500).json({
             success: false,
             message: error.message || 'Server error'
         });
     }
 };
-// DELETE BLOG
+
+// @desc    Delete a blog
+// @route   DELETE /api/blogs/delete/:id
+// @access  Private/Admin
 export const deleteBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -182,13 +168,6 @@ export const deleteBlog = async (req, res) => {
                 success: false,
                 message: 'Blog not found'
             });
-        }
-
-        if (blog.featuredImage) {
-            const imagePath = path.join('uploads', path.basename(blog.featuredImage));
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
         }
 
         await blog.deleteOne();
@@ -205,7 +184,10 @@ export const deleteBlog = async (req, res) => {
         });
     }
 };
-// GET ALL BLOGS
+
+// @desc    Get all blogs (with pagination & category filter)
+// @route   GET /api/blogs/get
+// @access  Public
 export const getAllBlogs = async (req, res) => {  
     try {
         const { category, page = 1, limit = 10 } = req.query;
@@ -240,7 +222,10 @@ export const getAllBlogs = async (req, res) => {
         });
     }
 };
-// GET BLOG BY SLUG
+
+// @desc    Get blog by Slug
+// @route   GET /api/blogs/slug/:slug
+// @access  Public
 export const getBlogBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
@@ -266,7 +251,10 @@ export const getBlogBySlug = async (req, res) => {
         });
     }
 };
-// GET BLOG BY ID
+
+// @desc    Get blog by ID
+// @route   GET /api/blogs/get/:id
+// @access  Public
 export const getBlogById = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);

@@ -9,6 +9,7 @@ import {
   sanitizeMiddleware,
   apiLimiter,
 } from './middlewares/securityMiddleware.js';
+
 // Route Imports
 import authRoutes from './routes/authRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
@@ -16,6 +17,10 @@ import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import galleryRoutes from './routes/galleryRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,15 +33,15 @@ connectDB();
 
 const app = express();
 
-// Serve uploaded images
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Middlewares
+// --- SECURITY & CORE MIDDLEWARES ---
 app.use(securityMiddleware);
 app.use(cors());
-app.use(express.json({ limit: '20mb' }));
+app.use(express.json({ limit: '10kb' }));
 app.use(sanitizeMiddleware);
-app.use('/api', apiLimiter);
+app.use('/api/', apiLimiter);
+
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Main App Routes
 app.use('/api/auth', authRoutes);
@@ -45,6 +50,10 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
