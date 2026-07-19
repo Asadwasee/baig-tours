@@ -1,8 +1,6 @@
 import Blog from '../models/Blog.js';
+import Category from '../models/Category.js';
 
-// @desc    Create a new blog
-// @route   POST /api/blogs/create
-// @access  Private/Admin
 export const createBlog = async (req, res) => {
     try {
         const {
@@ -89,10 +87,7 @@ export const createBlog = async (req, res) => {
         });
     }
 };
-
-// @desc    Update a blog
-// @route   PUT /api/blogs/update/:id
-// @access  Private/Admin
+//update blog
 export const updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -155,9 +150,7 @@ export const updateBlog = async (req, res) => {
     }
 };
 
-// @desc    Delete a blog
-// @route   DELETE /api/blogs/delete/:id
-// @access  Private/Admin
+// Delete a blog
 export const deleteBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -185,9 +178,7 @@ export const deleteBlog = async (req, res) => {
     }
 };
 
-// @desc    Get all blogs (with pagination & category filter)
-// @route   GET /api/blogs/get
-// @access  Public
+// Get all blogs
 export const getAllBlogs = async (req, res) => {  
     try {
         const { category, page = 1, limit = 10 } = req.query;
@@ -223,9 +214,7 @@ export const getAllBlogs = async (req, res) => {
     }
 };
 
-// @desc    Get blog by Slug
-// @route   GET /api/blogs/slug/:slug
-// @access  Public
+//Get blog by Slug
 export const getBlogBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
@@ -251,10 +240,7 @@ export const getBlogBySlug = async (req, res) => {
         });
     }
 };
-
-// @desc    Get blog by ID
-// @route   GET /api/blogs/get/:id
-// @access  Public
+//Get blog by ID
 export const getBlogById = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -273,6 +259,209 @@ export const getBlogById = async (req, res) => {
         });
     } catch (error) {
         console.error('Get Blog Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+// Get blogs by category
+export const getBlogCategories = async (req, res) => {
+    try {
+        const categories = await Category.find({ isActive: true })
+            .sort({ order: 1, createdAt: -1 });
+
+        // Get blog count for each category
+        const categoriesWithCount = await Promise.all(
+            categories.map(async (category) => {
+                const count = await Blog.countDocuments({
+                    category: category.slug,
+                    isPublished: true
+                });
+
+                return {
+                    id: category._id,
+                    name: category.name,
+                    slug: category.slug,
+                    description: category.description,
+                    icon: category.icon,
+                    color: category.color,
+                    count: count,
+                    isActive: category.isActive
+                };
+            })
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Blog categories fetched successfully',
+            data: categoriesWithCount
+        });
+    } catch (error) {
+        console.error('Get Categories Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+// GET ALL BLOG TAGS
+export const getBlogTags = async (req, res) => {
+    try {
+        const tags = await Blog.distinct('tags', { isPublished: true });
+
+        // Get count for each tag
+        const tagsWithCount = await Promise.all(
+            tags.map(async (tag) => {
+                const count = await Blog.countDocuments({ 
+                    tags: tag, 
+                    isPublished: true 
+                });
+                return { name: tag, count };
+            })
+        );
+
+        // Sort by count (highest first)
+        tagsWithCount.sort((a, b) => b.count - a.count);
+
+        res.status(200).json({
+            success: true,
+            message: 'Blog tags fetched successfully',
+            data: tagsWithCount
+        });
+    } catch (error) {
+        console.error('Get Tags Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+// GET CATEGORY DETAILS WITH BLOGS
+export const getCategoryDetails = async (req, res) => {
+    try {
+        const { categoryId } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+
+        const validCategories = [
+            'travel-tips', 'destinations', 'food-guides', 'road-trips',
+            'hotel-reviews', 'news', 'tour-guides', 'visa-guides'
+        ];
+
+        if (!validCategories.includes(categoryId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid category'
+            });
+        }
+
+        const skip = (page - 1) * limit;
+        const [blogs, total] = await Promise.all([
+            Blog.find({ category: categoryId, isPublished: true })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(parseInt(limit)),
+            Blog.countDocuments({ category: categoryId, isPublished: true })
+        ]);
+
+        // Category details
+        const categoryDetails = {
+            'travel-tips': { id: 'travel-tips', name: 'Travel Tips', description: 'Tips for traveling smarter', icon: '💡' },
+            'destinations': { id: 'destinations', name: 'Destinations', description: 'Explore amazing destinations', icon: '🌍' },
+            'food-guides': { id: 'food-guides', name: 'Food Guides', description: 'Best food spots and culinary experiences', icon: '🍜' },
+            'road-trips': { id: 'road-trips', name: 'Road Trips', description: 'Epic road trip adventures', icon: '🚗' },
+            'hotel-reviews': { id: 'hotel-reviews', name: 'Hotel Reviews', description: 'Honest hotel reviews', icon: '🏨' },
+            'news': { id: 'news', name: 'News', description: 'Latest travel news', icon: '📰' },
+            'tour-guides': { id: 'tour-guides', name: 'Tour Guides', description: 'Comprehensive tour guides', icon: '🗺️' },
+            'visa-guides': { id: 'visa-guides', name: 'Visa Guides', description: 'Visa requirements and guides', icon: '🛂' }
+        };
+
+        res.status(200).json({
+            success: true,
+            message: 'Category details fetched successfully',
+            data: {
+                category: {
+                    ...categoryDetails[categoryId],
+                    totalBlogs: total
+                },
+                blogs,
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total,
+                    pages: Math.ceil(total / limit)
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Get Category Details Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+// GET FEATURED BLOGS
+export const getFeaturedBlogs = async (req, res) => {
+    try {
+        const { limit = 6 } = req.query;
+        
+        const blogs = await Blog.find({ 
+            isFeatured: true, 
+            isPublished: true 
+        })
+        .sort({ createdAt: -1 })
+        .limit(parseInt(limit));
+
+        res.status(200).json({
+            success: true,
+            message: 'Featured blogs fetched successfully',
+            data: blogs
+        });
+    } catch (error) {
+        console.error('Get Featured Blogs Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+// GET BLOG WITH RELATED POSTS
+export const getBlogWithRelated = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        
+        // Get main blog
+        const blog = await Blog.findOne({ slug, isPublished: true });
+        if (!blog) {
+            return res.status(404).json({
+                success: false,
+                message: 'Blog not found'
+            });
+        }
+
+        // Increment views
+        await blog.incrementViews();
+
+        // Get related blogs (same category)
+        const relatedBlogs = await Blog.find({
+            category: blog.category,
+            _id: { $ne: blog._id },
+            isPublished: true
+        })
+        .select('title slug featuredImage publishDate')
+        .limit(4);
+
+        res.status(200).json({
+            success: true,
+            message: 'Blog fetched successfully',
+            data: {
+                blog,
+                relatedBlogs
+            }
+        });
+    } catch (error) {
+        console.error('Get Blog With Related Error:', error);
         res.status(500).json({
             success: false,
             message: error.message || 'Server error'

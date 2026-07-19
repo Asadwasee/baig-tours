@@ -345,6 +345,43 @@ export const galleryValidationRules = () => {
       .withMessage('Invalid category')
   ];
 };
+// CATEGORY VALIDATION
+export const categoryValidationRules = () => {
+  return [
+    body('name')
+      .notEmpty()
+      .withMessage('Category name is required')
+      .trim()
+      .isLength({ min: 2, max: 50 })
+      .withMessage('Category name must be between 2 and 50 characters'),
+
+    body('description')
+      .optional()
+      .trim()
+      .isLength({ max: 200 })
+      .withMessage('Description cannot exceed 200 characters'),
+
+    body('icon')
+      .optional()
+      .trim(),
+
+    body('color')
+      .optional()
+      .trim()
+      .matches(/^#[0-9a-f]{6}$/i)
+      .withMessage('Color must be a valid hex code (e.g., #6366f1)'),
+
+    body('order')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Order must be a positive number'),
+
+    body('isActive')
+      .optional()
+      .isBoolean()
+      .withMessage('isActive must be a boolean')
+  ];
+};
 // REVIEW VALIDATION
 export const reviewValidationRules = () => {
   return [
