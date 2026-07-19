@@ -10,12 +10,14 @@ import packageRoutes from './routes/packageRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import { securityMiddleware, sanitizeMiddleware, apiLimiter } from './middlewares/security.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -48,8 +50,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/contacts', contactRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reviews', reviewRoutes);
