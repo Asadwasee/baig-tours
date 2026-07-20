@@ -3,7 +3,18 @@ import {
   Grid3X3,
 } from "lucide-react";
 
-export default function SortBar() {
+interface Props {
+  totalPackages: number;
+
+  sortBy: string;
+
+  setSortBy: (value: string) => void;
+}
+export default function SortBar({
+  totalPackages,
+  sortBy,
+  setSortBy,
+}: Props) {
   return (
     <div className="mb-8 flex flex-col gap-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-md lg:flex-row lg:items-center lg:justify-between">
 
@@ -18,7 +29,7 @@ export default function SortBar() {
         <p className="mt-1 text-gray-600">
           Showing
           <span className="mx-1 font-semibold text-[#0F766E]">
-            12
+            {totalPackages}
           </span>
           carefully selected domestic & international tours.
         </p>
@@ -50,17 +61,16 @@ export default function SortBar() {
             Sort By
           </span>
 
-          <select className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-[#0F766E]">
-
-            <option>Latest</option>
-
-            <option>Lowest Price</option>
-
-            <option>Highest Price</option>
-
-            <option>Most Popular</option>
-
-          </select>
+          <select
+    value={sortBy}
+    onChange={(e) => setSortBy(e.target.value)}
+    className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-[#0F766E]"
+>
+    <option>Latest</option>
+    <option>Lowest Price</option>
+    <option>Highest Price</option>
+    <option>Most Popular</option>
+</select>
 
         </div>
 

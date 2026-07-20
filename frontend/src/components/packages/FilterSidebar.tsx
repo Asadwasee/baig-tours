@@ -9,7 +9,30 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-export default function FilterSidebar() {
+interface Props {
+  selectedDestinations: string[];
+  setSelectedDestinations: React.Dispatch<React.SetStateAction<string[]>>;
+
+  category: string;
+  setCategory: (value: string) => void;
+
+  duration: string;
+  setDuration: (value: string) => void;
+
+  maxPrice: number;
+  setMaxPrice: (value: number) => void;
+}
+
+export default function FilterSidebar({
+  selectedDestinations,
+  setSelectedDestinations,
+  category,
+  setCategory,
+  duration,
+  setDuration,
+  maxPrice,
+  setMaxPrice,
+}: Props) {
   return (
     <aside className="sticky top-24 rounded-3xl border border-gray-100 bg-white p-6 shadow-lg">
 
@@ -71,9 +94,26 @@ export default function FilterSidebar() {
               <div className="flex items-center gap-3">
 
                 <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-[#0F766E]"
-                />
+  type="checkbox"
+  checked={selectedDestinations.includes(item)}
+  onChange={() => {
+
+    if (selectedDestinations.includes(item)) {
+      setSelectedDestinations(
+        selectedDestinations.filter(
+          (destination) => destination !== item
+        )
+      );
+    } else {
+      setSelectedDestinations([
+        ...selectedDestinations,
+        item,
+      ]);
+    }
+
+  }}
+  className="h-4 w-4 accent-[#0F766E]"
+/>
 
                 <span className="text-gray-700">
                   {item}
@@ -121,10 +161,12 @@ export default function FilterSidebar() {
             >
 
               <input
-                type="radio"
-                name="category"
-                className="accent-[#0F766E]"
-              />
+    type="radio"
+    name="category"
+    checked={category === item}
+    onChange={() => setCategory(item)}
+    className="accent-[#0F766E]"
+/>
 
               <span>{item}</span>
 
@@ -152,7 +194,10 @@ export default function FilterSidebar() {
 
         </label>
 
-        <select className="w-full rounded-xl border border-gray-300 bg-white p-3 outline-none transition focus:border-[#0F766E]">
+        <select 
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+        className="w-full rounded-xl border border-gray-300 bg-white p-3 outline-none transition focus:border-[#0F766E]">
 
           <option>Any Duration</option>
 
@@ -177,19 +222,26 @@ export default function FilterSidebar() {
         </label>
 
         <input
-          type="range"
-          min="10000"
-          max="500000"
-          className="w-full accent-[#F97316]"
-        />
+    type="range"
+    min={10000}
+    max={500000}
+    step={5000}
+    value={maxPrice}
+    onChange={(e) =>
+        setMaxPrice(Number(e.target.value))
+    }
+    className="w-full accent-[#F97316]"
+/>
 
-        <div className="mt-3 flex justify-between text-sm font-medium text-gray-500">
+        <div className="mt-3 flex items-center justify-between text-sm font-medium text-gray-500">
 
-          <span>PKR 10k</span>
+    <span>PKR 10k</span>
 
-          <span>PKR 500k+</span>
+    <span className="font-semibold text-[#F97316]">
+        PKR {maxPrice.toLocaleString()}
+    </span>
 
-        </div>
+</div>
 
       </div>
 
@@ -219,11 +271,14 @@ export default function FilterSidebar() {
 
       <div className="space-y-3">
 
-        <button className="w-full rounded-xl bg-[#F97316] py-3 font-semibold text-white transition hover:bg-[#0B5C56]">
-          Apply Filters
-        </button>
-
-        <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#0F766E] py-3 font-semibold text-[#0F766E] transition hover:bg-[#0F766E] hover:text-white">
+        <button 
+        onClick={() => {
+        setSelectedDestinations([]);
+        setCategory("");
+        setDuration("");
+        setMaxPrice(500000);
+    }}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#0F766E] py-3 font-semibold text-[#0F766E] transition hover:bg-[#0F766E] hover:text-white">
 
           <RotateCcw size={17} />
 
