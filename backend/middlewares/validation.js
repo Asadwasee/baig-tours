@@ -57,6 +57,7 @@ export const validateFields = (req, res, next) => {
   next();
 };
 
+// Fixed Tourism-focused Categories (Synced with Blog.js model)
 export const blogValidationRules = () => [
   body('title')
     .trim()
@@ -68,7 +69,16 @@ export const blogValidationRules = () => [
     .trim()
     .notEmpty()
     .withMessage('Category is required')
-    .isIn(['technology', 'health', 'business', 'education', 'lifestyle', 'travel', 'food', 'fashion', 'sports', 'other'])
+    .isIn([
+      'travel-tips',
+      'destinations',
+      'food-guides',
+      'road-trips',
+      'hotel-reviews',
+      'news',
+      'tour-guides',
+      'visa-guides'
+    ])
     .withMessage('Category is invalid'),
   body('content')
     .trim()
@@ -176,7 +186,7 @@ export const settingsValidationRules = () => [
     .optional()
     .trim()
     .isLength({ max: 60 })
-    .withMessage('OG title cannot exceed 60 characters'),
+    .withMessage('Meta title cannot exceed 60 characters'),
 
   body('seo.openGraph.ogDescription')
     .optional()
@@ -234,7 +244,7 @@ export const settingsValidationRules = () => [
     .isInt({ min: 1, max: 20 })
     .withMessage('Zoom must be between 1 and 20'),
 ];
-// SEO ONLY VALIDATION
+
 export const seoValidationRules = () => {
   return [
     body('metaTitle')
@@ -288,7 +298,7 @@ export const seoValidationRules = () => {
       .withMessage('Please enter a valid OG image URL')
   ];
 };
-// SOCIAL LINKS ONLY VALIDATION
+
 export const socialLinkValidationRules = () => {
   return [
     body('socialLinks')
@@ -312,7 +322,7 @@ export const socialLinkValidationRules = () => {
       .withMessage('isActive must be a boolean')
   ];
 };
-// ROBOTS.TXT VALIDATION
+
 export const robotsValidationRules = () => {
   return [
     body('robotsTxt')
@@ -322,7 +332,7 @@ export const robotsValidationRules = () => {
       .withMessage('Robots.txt must be a string')
   ];
 };
-// GALLERY VALIDATION
+
 export const galleryValidationRules = () => {
   return [
     body('title')
@@ -345,7 +355,7 @@ export const galleryValidationRules = () => {
       .withMessage('Invalid category')
   ];
 };
-// CATEGORY VALIDATION
+
 export const categoryValidationRules = () => {
   return [
     body('name')
@@ -382,7 +392,7 @@ export const categoryValidationRules = () => {
       .withMessage('isActive must be a boolean')
   ];
 };
-// REVIEW VALIDATION
+
 export const reviewValidationRules = () => {
   return [
     body('customerName')

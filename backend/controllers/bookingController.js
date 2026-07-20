@@ -132,6 +132,32 @@ export const createBooking = async (req, res) => {
       .populate('customer', 'fullName email phone')
       .populate('package', 'title destination price');
 
+    // NEW: Automated Emails For Customer Confirmation & Admin Alert
+    try {
+      const statusLabel = getBookingStatusLabel(populatedBooking.status);
+      
+      // 1. Send Confirmation Email to Customer
+      await sendBookingStatusEmail({
+        to: populatedBooking.customer.email,
+        customerName: populatedBooking.customer.fullName,
+        bookingId: populatedBooking._id.toString(),
+        status: statusLabel,
+        message: `Thank you for choosing Baig Tours! Your booking request for "${populatedBooking.package.title}" has been successfully submitted and is currently pending review.`,
+      });
+
+      // 2. Send Notification Email to Admin
+      await sendBookingStatusEmail({
+        to: process.env.EMAIL_TO || 'admin@baigtours.com',
+        customerName: 'Admin Team',
+        bookingId: populatedBooking._id.toString(),
+        status: 'New Booking Submitted',
+        message: `Alert: A new booking request has been created by ${populatedBooking.customer.fullName} for the package "${populatedBooking.package.title}". Please review it in the admin dashboard.`,
+      });
+    } catch (emailError) {
+      console.error('Booking notification emails failed to send:', emailError);
+      // Fail silently to prevent the main API response from breaking for the user
+    }
+
     res.status(201).json(populatedBooking);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -245,6 +271,7 @@ export const updateBooking = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // @desc    Delete booking
 // @route   DELETE /api/bookings/:id
 // @access  Private/Admin
@@ -256,7 +283,6 @@ export const deleteBooking = async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    // Delete hone par bhi package seats restore karein
     if (booking.status !== 'cancelled') {
       const tourPackage = await Package.findById(booking.package);
       if (tourPackage) {
