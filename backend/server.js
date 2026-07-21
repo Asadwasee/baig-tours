@@ -23,29 +23,32 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import newsletterRoutes from './routes/newsletterRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Environment variables load karein
+// Load Environment Variables
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
-// Database connection
+// Connect to Database
 connectDB();
 
 const app = express();
 
-// --- SECURITY & CORE MIDDLEWARES ---
+// Security and Core Middlewares
 app.use(securityMiddleware);
 app.use(cors());
 app.use(express.json({ limit: '10kb' }));
 app.use(sanitizeMiddleware);
+
+// Apply General Rate Limiter to all API routes
 app.use('/api/', apiLimiter);
 
-// Serve uploaded images
+// Static Uploads Middleware
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Main App Routes
+// Application Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/customers', customerRoutes);
@@ -58,8 +61,9 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/dashboard', dashboardRoutes); 
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
-// Base Test Route
+// Base Health Check Route
 app.get('/', (req, res) => {
   res.send('Baig Tours MERN Backend is running smoothly...');
 });

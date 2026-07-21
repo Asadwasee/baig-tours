@@ -1,6 +1,10 @@
 import Blog from '../models/Blog.js';
 import Category from '../models/Category.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 
+// @desc    Create a blog (Cloudinary Direct Buffer Upload)
+// @route   POST /api/blogs/create
+// @access  Private/Admin
 export const createBlog = async (req, res) => {
     try {
         const {
@@ -15,7 +19,6 @@ export const createBlog = async (req, res) => {
             isPublished
         } = req.body;
 
-        // Validation for required fields
         if (!title || !content || !category) {
             return res.status(400).json({
                 success: false,
@@ -23,13 +26,12 @@ export const createBlog = async (req, res) => {
             });
         }
 
-        // Direct Cloudinary secure URL handling
-        let featuredImage = '';
+        // Cloudinary Direct Buffer Upload
+        let featuredImage = req.body.featuredImage || '';
         if (req.file) {
-            featuredImage = req.file.path; 
+            featuredImage = await uploadToCloudinary(req.file.buffer, 'baig_tours_blogs');
         }
 
-        // Slug management
         let blogSlug = slug;
         if (!blogSlug) {
             blogSlug = title
@@ -46,7 +48,6 @@ export const createBlog = async (req, res) => {
             });
         }
 
-        // Form-Data String parsing safety guards
         let tagsArray = tags;
         if (typeof tags === 'string') {
             tagsArray = tags.split(',').map(tag => tag.trim());
@@ -87,7 +88,10 @@ export const createBlog = async (req, res) => {
         });
     }
 };
-//update blog
+
+// @desc    Update a blog (With Cloudinary Cleanup on Image Replace)
+// @route   PUT /api/blogs/update/:id
+// @access  Private/Admin
 export const updateBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -101,8 +105,12 @@ export const updateBlog = async (req, res) => {
             });
         }
 
+        // Cloudinary Upload & Cleanup Old Image
         if (req.file) {
-            updateData.featuredImage = req.file.path;
+            if (existingBlog.featuredImage) {
+                await deleteFromCloudinary(existingBlog.featuredImage);
+            }
+            updateData.featuredImage = await uploadToCloudinary(req.file.buffer, 'baig_tours_blogs');
         }
 
         if (updateData.tags && typeof updateData.tags === 'string') {
@@ -150,7 +158,9 @@ export const updateBlog = async (req, res) => {
     }
 };
 
-// Delete a blog
+// @desc    Delete a blog (With Cloudinary Image Deletion)
+// @route   DELETE /api/blogs/delete/:id
+// @access  Private/Admin
 export const deleteBlog = async (req, res) => {
     try {
         const { id } = req.params;
@@ -161,6 +171,11 @@ export const deleteBlog = async (req, res) => {
                 success: false,
                 message: 'Blog not found'
             });
+        }
+
+        // Delete associated image from Cloudinary
+        if (blog.featuredImage) {
+            await deleteFromCloudinary(blog.featuredImage);
         }
 
         await blog.deleteOne();
@@ -178,7 +193,9 @@ export const deleteBlog = async (req, res) => {
     }
 };
 
-// Get all blogs
+// @desc    Get all blogs
+// @route   GET /api/blogs/get
+// @access  Public
 export const getAllBlogs = async (req, res) => {  
     try {
         const { category, page = 1, limit = 10 } = req.query;
@@ -214,7 +231,9 @@ export const getAllBlogs = async (req, res) => {
     }
 };
 
-//Get blog by Slug
+// @desc    Get blog by Slug
+// @route   GET /api/blogs/slug/:slug
+// @access  Public
 export const getBlogBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
@@ -240,7 +259,10 @@ export const getBlogBySlug = async (req, res) => {
         });
     }
 };
-//Get blog by ID
+
+// @desc    Get blog by ID
+// @route   GET /api/blogs/get/:id
+// @access  Public
 export const getBlogById = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -265,13 +287,15 @@ export const getBlogById = async (req, res) => {
         });
     }
 };
-// Get blogs by category
+
+// @desc    Get blog categories with count
+// @route   GET /api/blogs/categories
+// @access  Public
 export const getBlogCategories = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true })
             .sort({ order: 1, createdAt: -1 });
 
-        // Get blog count for each category
         const categoriesWithCount = await Promise.all(
             categories.map(async (category) => {
                 const count = await Blog.countDocuments({
@@ -305,12 +329,14 @@ export const getBlogCategories = async (req, res) => {
         });
     }
 };
-// GET ALL BLOG TAGS
+
+// @desc    Get all blog tags
+// @route   GET /api/blogs/tags
+// @access  Public
 export const getBlogTags = async (req, res) => {
     try {
         const tags = await Blog.distinct('tags', { isPublished: true });
 
-        // Get count for each tag
         const tagsWithCount = await Promise.all(
             tags.map(async (tag) => {
                 const count = await Blog.countDocuments({ 
@@ -321,7 +347,6 @@ export const getBlogTags = async (req, res) => {
             })
         );
 
-        // Sort by count (highest first)
         tagsWithCount.sort((a, b) => b.count - a.count);
 
         res.status(200).json({
@@ -337,53 +362,53 @@ export const getBlogTags = async (req, res) => {
         });
     }
 };
-// GET CATEGORY DETAILS WITH BLOGS
+
+// @desc    Get category details with blogs (Dynamic Database Category Query)
+// @route   GET /api/blogs/categories/:categoryId
+// @access  Public
 export const getCategoryDetails = async (req, res) => {
     try {
         const { categoryId } = req.params;
         const { page = 1, limit = 10 } = req.query;
 
-        const validCategories = [
-            'travel-tips', 'destinations', 'food-guides', 'road-trips',
-            'hotel-reviews', 'news', 'tour-guides', 'visa-guides'
-        ];
+        // Dynamic Database Check instead of hardcoded array
+        const categoryObj = await Category.findOne({ slug: categoryId, isActive: true });
+        const total = await Blog.countDocuments({ category: categoryId, isPublished: true });
 
-        if (!validCategories.includes(categoryId)) {
-            return res.status(400).json({
+        if (!categoryObj && total === 0) {
+            return res.status(404).json({
                 success: false,
-                message: 'Invalid category'
+                message: 'Category not found'
             });
         }
 
         const skip = (page - 1) * limit;
-        const [blogs, total] = await Promise.all([
-            Blog.find({ category: categoryId, isPublished: true })
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(parseInt(limit)),
-            Blog.countDocuments({ category: categoryId, isPublished: true })
-        ]);
+        const blogs = await Blog.find({ category: categoryId, isPublished: true })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
 
-        // Category details
-        const categoryDetails = {
-            'travel-tips': { id: 'travel-tips', name: 'Travel Tips', description: 'Tips for traveling smarter', icon: '💡' },
-            'destinations': { id: 'destinations', name: 'Destinations', description: 'Explore amazing destinations', icon: '🌍' },
-            'food-guides': { id: 'food-guides', name: 'Food Guides', description: 'Best food spots and culinary experiences', icon: '🍜' },
-            'road-trips': { id: 'road-trips', name: 'Road Trips', description: 'Epic road trip adventures', icon: '🚗' },
-            'hotel-reviews': { id: 'hotel-reviews', name: 'Hotel Reviews', description: 'Honest hotel reviews', icon: '🏨' },
-            'news': { id: 'news', name: 'News', description: 'Latest travel news', icon: '📰' },
-            'tour-guides': { id: 'tour-guides', name: 'Tour Guides', description: 'Comprehensive tour guides', icon: '🗺️' },
-            'visa-guides': { id: 'visa-guides', name: 'Visa Guides', description: 'Visa requirements and guides', icon: '🛂' }
+        const categoryData = categoryObj ? {
+            id: categoryObj.slug,
+            name: categoryObj.name,
+            description: categoryObj.description || `Explore ${categoryObj.name} articles`,
+            icon: categoryObj.icon || 'folder',
+            color: categoryObj.color || '#6366f1',
+            totalBlogs: total
+        } : {
+            id: categoryId,
+            name: categoryId.replace(/-/g, ' ').toUpperCase(),
+            description: `Articles under ${categoryId}`,
+            icon: 'folder',
+            color: '#6366f1',
+            totalBlogs: total
         };
 
         res.status(200).json({
             success: true,
             message: 'Category details fetched successfully',
             data: {
-                category: {
-                    ...categoryDetails[categoryId],
-                    totalBlogs: total
-                },
+                category: categoryData,
                 blogs,
                 pagination: {
                     page: parseInt(page),
@@ -401,7 +426,10 @@ export const getCategoryDetails = async (req, res) => {
         });
     }
 };
-// GET FEATURED BLOGS
+
+// @desc    Get featured blogs
+// @route   GET /api/blogs/featured
+// @access  Public
 export const getFeaturedBlogs = async (req, res) => {
     try {
         const { limit = 6 } = req.query;
@@ -426,12 +454,14 @@ export const getFeaturedBlogs = async (req, res) => {
         });
     }
 };
-// GET BLOG WITH RELATED POSTS
+
+// @desc    Get blog with related posts
+// @route   GET /api/blogs/slug/related/:slug
+// @access  Public
 export const getBlogWithRelated = async (req, res) => {
     try {
         const { slug } = req.params;
         
-        // Get main blog
         const blog = await Blog.findOne({ slug, isPublished: true });
         if (!blog) {
             return res.status(404).json({
@@ -440,10 +470,8 @@ export const getBlogWithRelated = async (req, res) => {
             });
         }
 
-        // Increment views
         await blog.incrementViews();
 
-        // Get related blogs (same category)
         const relatedBlogs = await Blog.find({
             category: blog.category,
             _id: { $ne: blog._id },

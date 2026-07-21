@@ -11,12 +11,24 @@ export const sanitizeMiddleware = mongoSanitize({
   },
 });
 
+// General API Rate Limiter (For public browsing)
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    message: 'Too many requests, please try again later.',
+    message: 'Too many requests from this IP, please try again after 15 minutes.',
+  },
+});
+
+// Strict Rate Limiter for Authentication Endpoints
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: 'Too many login/registration attempts, please try again after 15 minutes.',
   },
 });

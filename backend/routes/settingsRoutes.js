@@ -16,12 +16,15 @@ import {
   generateSitemap,
   getRobotsTxt,
   updateRobotsTxt,
+  getAboutUsSettings,
+  updateAboutUsSettings,
 } from "../controllers/settingsController.js";
 
 const router = express.Router();
 
 // Public Routes
 router.get("/getall", getSettings);
+router.get("/about_us", getAboutUsSettings);
 router.get("/robots.txt", getRobotsTxt);
 router.get("/sitemap", generateSitemap);
 
@@ -39,12 +42,22 @@ router.put(
 );
 
 router.put(
+  "/update_about_us",
+  protect,
+  upload.fields([
+    { name: "bannerImage", maxCount: 1 }
+  ]),
+  updateAboutUsSettings,
+);
+
+router.put(
   "/update_seo_settings",
   protect,
   seoValidationRules(),
   validateFields,
   updateSeoSettings,
 );
+
 router.put(
   "/update_social_links",
   protect,
@@ -52,6 +65,7 @@ router.put(
   validateFields,
   updateSocialLinks,
 );
+
 router.put(
   "/update_robots_txt",
   protect,

@@ -18,6 +18,20 @@ export const bookingValidationRules = [
     .trim()
     .isLength({ min: 7, max: 20 })
     .withMessage('Phone number must be between 7 and 20 characters'),
+  // ✅ NEW: Added optional city validator
+  body('customerDetails.city')
+    .optional({ values: 'falsy' })
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('City must be between 2 and 50 characters'),
+  // ✅ NEW: Added optional whatsapp validator
+  body('customerDetails.whatsappNumber')
+    .optional({ values: 'falsy' })
+    .isString()
+    .trim()
+    .isLength({ min: 7, max: 20 })
+    .withMessage('WhatsApp number must be between 7 and 20 characters'),
   body('package')
     .notEmpty()
     .withMessage('Please select a tour package'),
@@ -92,6 +106,18 @@ export const blogValidationRules = () => [
     .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .withMessage('Slug must be lowercase with hyphens only'),
 ];
+
+export const newsletterValidationRules = () => {
+  return [
+    body('email')
+      .notEmpty()
+      .withMessage('Email address is required')
+      .trim()
+      .isEmail()
+      .withMessage('Please enter a valid email address')
+      .normalizeEmail(),
+  ];
+};
 
 export const loginValidationRules = [
   body('email')

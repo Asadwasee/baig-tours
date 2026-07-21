@@ -1,12 +1,10 @@
 import Contact from '../models/Contact.js';
+import { sendContactReplyEmail } from '../utils/sendEmail.js';
 
-// ============================================================
-// SUBMIT CONTACT FORM
-// ============================================================
+// Submit Contact Form
 export const submitContact = async (req, res) => {
     try {
         const { name, email, phone, subject, message, source } = req.body;
-
         const ipAddress = req.ip || req.connection.remoteAddress;
 
         const contact = await Contact.create({
@@ -41,9 +39,7 @@ export const submitContact = async (req, res) => {
     }
 };
 
-// ============================================================
-// GET ALL CONTACTS (Admin)
-// ============================================================
+// Get All Contacts (Admin)
 export const getAllContacts = async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
@@ -94,9 +90,7 @@ export const getAllContacts = async (req, res) => {
     }
 };
 
-// ============================================================
-// GET SINGLE CONTACT (Admin)
-// ============================================================
+// Get Single Contact (Admin)
 export const getContactById = async (req, res) => {
     try {
         const contact = await Contact.findById(req.params.id);
@@ -128,9 +122,7 @@ export const getContactById = async (req, res) => {
     }
 };
 
-// ============================================================
-// REPLY TO CONTACT (Admin)
-// ============================================================
+// Reply To Contact Query (Admin - With Email Dispatch)
 export const replyContact = async (req, res) => {
     try {
         const { id } = req.params;
@@ -156,9 +148,18 @@ export const replyContact = async (req, res) => {
         contact.respondedAt = new Date();
         await contact.save();
 
+        // Dispatch reply email to customer
+        await sendContactReplyEmail({
+            to: contact.email,
+            customerName: contact.name,
+            subject: contact.subject,
+            originalMessage: contact.message,
+            adminResponse
+        });
+
         res.status(200).json({
             success: true,
-            message: 'Reply sent successfully',
+            message: 'Reply sent and email dispatched successfully',
             data: contact
         });
     } catch (error) {
@@ -170,9 +171,7 @@ export const replyContact = async (req, res) => {
     }
 };
 
-// ============================================================
-// DELETE CONTACT (Admin)
-// ============================================================
+// Delete Contact (Admin)
 export const deleteContact = async (req, res) => {
     try {
         const { id } = req.params;

@@ -1,11 +1,17 @@
 import WebsiteSettings from '../models/WebsiteSettings.js';
+import Package from '../models/Package.js';
+import Blog from '../models/Blog.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// GET WEBSITE SETTINGS (Public)
+
+// @desc    GET WEBSITE SETTINGS (Public)
+// @route   GET /api/settings/getall
+// @access  Public
 export const getSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne();
@@ -36,7 +42,10 @@ export const getSettings = async (req, res) => {
         });
     }
 };
-// UPDATE WEBSITE SETTINGS (Admin)
+
+// @desc    UPDATE WEBSITE SETTINGS (Admin - Cloudinary Support)
+// @route   PUT /api/settings/update_settings
+// @access  Private/Admin
 export const updateSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne();
@@ -44,22 +53,22 @@ export const updateSettings = async (req, res) => {
 
         const updateData = { ...req.body };
 
-        // Handle logo upload
-        if (req.files?.logo) {
+        // Handle logo upload to Cloudinary with old file cleanup
+        if (req.files?.logo && req.files.logo.length > 0) {
             if (settings.companyLogo) {
-                const oldPath = path.join('uploads', path.basename(settings.companyLogo));
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                await deleteFromCloudinary(settings.companyLogo);
             }
-            updateData.companyLogo = `/uploads/${req.files.logo[0].filename}`;
+            const logoUrl = await uploadToCloudinary(req.files.logo[0].buffer, 'baig_tours_settings');
+            updateData.companyLogo = logoUrl;
         }
 
-        // Handle favicon upload
-        if (req.files?.favicon) {
+        // Handle favicon upload to Cloudinary with old file cleanup
+        if (req.files?.favicon && req.files.favicon.length > 0) {
             if (settings.favicon) {
-                const oldPath = path.join('uploads', path.basename(settings.favicon));
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                await deleteFromCloudinary(settings.favicon);
             }
-            updateData.favicon = `/uploads/${req.files.favicon[0].filename}`;
+            const faviconUrl = await uploadToCloudinary(req.files.favicon[0].buffer, 'baig_tours_settings');
+            updateData.favicon = faviconUrl;
         }
 
         const updatedSettings = await WebsiteSettings.findOneAndUpdate(
@@ -81,7 +90,119 @@ export const updateSettings = async (req, res) => {
         });
     }
 };
-// UPDATE SEO SETTINGS ONLY
+
+// @desc    GET ABOUT US SECTION SETTINGS (Public)
+// @route   GET /api/settings/about_us
+// @access  Public
+export const getAboutUsSettings = async (req, res) => {
+    try {
+        let settings = await WebsiteSettings.findOne().select('aboutUs companyName');
+        
+        if (!settings || !settings.aboutUs) {
+            return res.status(200).json({
+                success: true,
+                message: 'About us section fetched',
+                data: {
+                    title: 'About Baig Tours',
+                    subtitle: 'Your Trusted Travel Partner',
+                    story: '',
+                    mission: '',
+                    vision: '',
+                    bannerImage: '',
+                    values: [],
+                    team: [],
+                    stats: []
+                }
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'About us section fetched successfully',
+            data: settings.aboutUs
+        });
+    } catch (error) {
+        console.error('Get About Us Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+
+// @desc    UPDATE ABOUT US SECTION CONTENT (Admin)
+// @route   PUT /api/settings/update_about_us
+// @access  Private/Admin
+export const updateAboutUsSettings = async (req, res) => {
+    try {
+        let settings = await WebsiteSettings.findOne();
+        if (!settings) settings = new WebsiteSettings();
+
+        const { title, subtitle, story, mission, vision, values, team, stats } = req.body;
+
+        if (!settings.aboutUs) {
+            settings.aboutUs = {};
+        }
+
+        if (title !== undefined) settings.aboutUs.title = title;
+        if (subtitle !== undefined) settings.aboutUs.subtitle = subtitle;
+        if (story !== undefined) settings.aboutUs.story = story;
+        if (mission !== undefined) settings.aboutUs.mission = mission;
+        if (vision !== undefined) settings.aboutUs.vision = vision;
+
+        // Parse array JSON fields if passed via Form Data
+        if (values) {
+            try {
+                settings.aboutUs.values = typeof values === 'string' ? JSON.parse(values) : values;
+            } catch (e) {
+                settings.aboutUs.values = [];
+            }
+        }
+
+        if (team) {
+            try {
+                settings.aboutUs.team = typeof team === 'string' ? JSON.parse(team) : team;
+            } catch (e) {
+                settings.aboutUs.team = [];
+            }
+        }
+
+        if (stats) {
+            try {
+                settings.aboutUs.stats = typeof stats === 'string' ? JSON.parse(stats) : stats;
+            } catch (e) {
+                settings.aboutUs.stats = [];
+            }
+        }
+
+        // Handle Banner Image upload to Cloudinary
+        if (req.files?.bannerImage && req.files.bannerImage.length > 0) {
+            if (settings.aboutUs.bannerImage) {
+                await deleteFromCloudinary(settings.aboutUs.bannerImage);
+            }
+            const bannerUrl = await uploadToCloudinary(req.files.bannerImage[0].buffer, 'baig_tours_settings');
+            settings.aboutUs.bannerImage = bannerUrl;
+        }
+
+        await settings.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'About us section updated successfully',
+            data: settings.aboutUs
+        });
+    } catch (error) {
+        console.error('Update About Us Error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+};
+
+// @desc    UPDATE SEO SETTINGS ONLY
+// @route   PUT /api/settings/update_seo_settings
+// @access  Private/Admin
 export const updateSeoSettings = async (req, res) => {
     try {
         const { metaTitle, metaDescription, metaKeywords, canonicalUrl, openGraph, robots } = req.body;
@@ -113,7 +234,10 @@ export const updateSeoSettings = async (req, res) => {
         });
     }
 };
-// UPDATE SOCIAL LINKS
+
+// @desc    UPDATE SOCIAL LINKS
+// @route   PUT /api/settings/update_social_links
+// @access  Private/Admin
 export const updateSocialLinks = async (req, res) => {
     try {
         const { socialLinks } = req.body;
@@ -144,37 +268,76 @@ export const updateSocialLinks = async (req, res) => {
         });
     }
 };
-// GENERATE SITEMAP
+
+// @desc    GENERATE DYNAMIC SITEMAP (With Live Packages & Blogs)
+// @route   GET /api/settings/sitemap
+// @access  Public
 export const generateSitemap = async (req, res) => {
     try {
         const baseUrl = req.query.baseUrl || 'https://baigtours.com';
+        const today = new Date().toISOString().split('T')[0];
+
+        const [packages, blogs] = await Promise.all([
+            Package.find({}).select('slug updatedAt createdAt'),
+            Blog.find({ isPublished: true }).select('slug updatedAt createdAt')
+        ]);
+
+        const packageUrlsXml = packages.map(pkg => {
+            const lastMod = (pkg.updatedAt || pkg.createdAt || new Date()).toISOString().split('T')[0];
+            return `    <url>
+        <loc>${baseUrl}/tours/${pkg.slug || pkg._id}</loc>
+        <lastmod>${lastMod}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>`;
+        }).join('\n');
+
+        const blogUrlsXml = blogs.map(blog => {
+            const lastMod = (blog.updatedAt || blog.createdAt || new Date()).toISOString().split('T')[0];
+            return `    <url>
+        <loc>${baseUrl}/blog/${blog.slug || blog._id}</loc>
+        <lastmod>${lastMod}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>`;
+        }).join('\n');
 
         const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>${baseUrl}/</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <lastmod>${today}</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>${baseUrl}/about</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>${baseUrl}/tours</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <lastmod>${today}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
+        <loc>${baseUrl}/blogs</loc>
+        <lastmod>${today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>${baseUrl}/contact</loc>
-        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <lastmod>${today}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+<!-- Dynamic Tour Package Links -->
+${packageUrlsXml}
+<!-- Dynamic Blog Links -->
+${blogUrlsXml}
 </urlset>`;
 
         const publicDir = path.join(__dirname, '../public');
@@ -193,9 +356,11 @@ export const generateSitemap = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Sitemap generated successfully',
+            message: 'Dynamic sitemap generated successfully',
             data: {
                 url: `${baseUrl}/sitemap.xml`,
+                totalPackagesIncluded: packages.length,
+                totalBlogsIncluded: blogs.length,
                 lastGenerated: new Date()
             }
         });
@@ -207,7 +372,10 @@ export const generateSitemap = async (req, res) => {
         });
     }
 };
-// GET ROBOTS.TXT
+
+// @desc    GET ROBOTS.TXT
+// @route   GET /api/settings/robots.txt
+// @access  Public
 export const getRobotsTxt = async (req, res) => {
     try {
         const settings = await WebsiteSettings.findOne();
@@ -223,7 +391,10 @@ export const getRobotsTxt = async (req, res) => {
         });
     }
 };
-// UPDATE ROBOTS.TXT
+
+// @desc    UPDATE ROBOTS.TXT
+// @route   PUT /api/settings/update_robots_txt
+// @access  Private/Admin
 export const updateRobotsTxt = async (req, res) => {
     try {
         const { robotsTxt } = req.body;

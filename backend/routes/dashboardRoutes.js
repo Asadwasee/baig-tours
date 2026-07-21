@@ -7,7 +7,9 @@ import {
     getBookingStatusDistribution,
     getRecentBookings,
     getYearlyComparison,
-    getCompleteDashboard
+    getCompleteDashboard,
+    getBookingsByCategory,
+    getCustomerGrowth
 } from '../controllers/dashboardController.js';
 
 const router = express.Router();
@@ -20,5 +22,7 @@ router.get('/popular-destinations', getPopularDestinations);
 router.get('/status-distribution', getBookingStatusDistribution);
 router.get('/recent-bookings', getRecentBookings);
 router.get('/yearly-comparison', getYearlyComparison);
+router.get('/bookings-by-category', getBookingsByCategory);
+router.get('/customer-growth', getCustomerGrowth);
 
 export default router;

@@ -30,6 +30,40 @@ const footerLinkSchema = new mongoose.Schema({
     url: { type: String, required: true, trim: true }
 }, { _id: false });
 
+// Sub-schemas for About Us
+const teamMemberSchema = new mongoose.Schema({
+    name: { type: String, required: true, trim: true },
+    role: { type: String, required: true, trim: true },
+    image: { type: String, default: '' },
+    bio: { type: String, trim: true },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true }
+}, { _id: false });
+
+const valueSchema = new mongoose.Schema({
+    title: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
+    icon: { type: String, trim: true } // Standard icon string (e.g., 'compass', 'heart', 'shield')
+}, { _id: false });
+
+const statSchema = new mongoose.Schema({
+    label: { type: String, required: true, trim: true },
+    value: { type: String, required: true, trim: true }, // e.g., '10,000+', '15+'
+    icon: { type: String, trim: true }
+}, { _id: false });
+
+const aboutUsSchema = new mongoose.Schema({
+    title: { type: String, trim: true, default: 'About Baig Tours' },
+    subtitle: { type: String, trim: true },
+    story: { type: String, trim: true },
+    mission: { type: String, trim: true },
+    vision: { type: String, trim: true },
+    bannerImage: { type: String, default: '' },
+    values: [valueSchema],
+    team: [teamMemberSchema],
+    stats: [statSchema]
+}, { _id: false });
+
 const websiteSettingsSchema = new mongoose.Schema({
     // Basic Info
     companyName: {
@@ -50,6 +84,9 @@ const websiteSettingsSchema = new mongoose.Schema({
 
     // Social Media Links
     socialLinks: [socialLinkSchema],
+
+    // NEW: About Us Structured Content Section
+    aboutUs: { type: aboutUsSchema, default: () => ({}) },
 
     // Google Maps
     googleMaps: {
