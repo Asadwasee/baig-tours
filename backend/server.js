@@ -28,17 +28,36 @@ import newsletterRoutes from './routes/newsletterRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load Environment Variables
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+// Load Environment Variables (Standard root lookup)
+dotenv.config();
 
 // Connect to Database
 connectDB();
 
 const app = express();
 
+// Configure Dynamic CORS Origins
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:3000',
+  'http://localhost:5173',
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or Postman) or allowed domains
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
 // Security and Core Middlewares
 app.use(securityMiddleware);
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10kb' }));
 app.use(sanitizeMiddleware);
 

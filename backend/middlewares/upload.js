@@ -19,7 +19,7 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: { 
-        fileSize: 100 * 1024 * 1024 // 100MB limit
+        fileSize: 25 * 1024 * 1024 // Reduced from 100MB to 25MB to protect VPS RAM
     }
 });
 

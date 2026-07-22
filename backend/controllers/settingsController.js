@@ -9,9 +9,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// @desc    GET WEBSITE SETTINGS (Public)
-// @route   GET /api/settings/getall
-// @access  Public
+// GET WEBSITE SETTINGS (Public)
 export const getSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne();
@@ -24,7 +22,7 @@ export const getSettings = async (req, res) => {
                     metaTitle: 'Baig Tours - Explore the World',
                     metaDescription: 'Book your dream tour with Baig Tours.',
                     metaKeywords: 'travel, tours, Pakistan',
-                    canonicalUrl: 'https://baigtours.com'
+                    canonicalUrl: process.env.CLIENT_URL || 'https://baigtours.com'
                 }
             });
         }
@@ -43,9 +41,7 @@ export const getSettings = async (req, res) => {
     }
 };
 
-// @desc    UPDATE WEBSITE SETTINGS (Admin - Cloudinary Support)
-// @route   PUT /api/settings/update_settings
-// @access  Private/Admin
+// UPDATE WEBSITE SETTINGS (Admin - Cloudinary Support)
 export const updateSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne();
@@ -91,9 +87,7 @@ export const updateSettings = async (req, res) => {
     }
 };
 
-// @desc    GET ABOUT US SECTION SETTINGS (Public)
-// @route   GET /api/settings/about_us
-// @access  Public
+// GET ABOUT US SECTION SETTINGS (Public)
 export const getAboutUsSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne().select('aboutUs companyName');
@@ -130,9 +124,7 @@ export const getAboutUsSettings = async (req, res) => {
     }
 };
 
-// @desc    UPDATE ABOUT US SECTION CONTENT (Admin)
-// @route   PUT /api/settings/update_about_us
-// @access  Private/Admin
+// UPDATE ABOUT US SECTION CONTENT (Admin)
 export const updateAboutUsSettings = async (req, res) => {
     try {
         let settings = await WebsiteSettings.findOne();
@@ -200,9 +192,7 @@ export const updateAboutUsSettings = async (req, res) => {
     }
 };
 
-// @desc    UPDATE SEO SETTINGS ONLY
-// @route   PUT /api/settings/update_seo_settings
-// @access  Private/Admin
+// UPDATE SEO SETTINGS ONLY
 export const updateSeoSettings = async (req, res) => {
     try {
         const { metaTitle, metaDescription, metaKeywords, canonicalUrl, openGraph, robots } = req.body;
@@ -235,9 +225,7 @@ export const updateSeoSettings = async (req, res) => {
     }
 };
 
-// @desc    UPDATE SOCIAL LINKS
-// @route   PUT /api/settings/update_social_links
-// @access  Private/Admin
+// UPDATE SOCIAL LINKS
 export const updateSocialLinks = async (req, res) => {
     try {
         const { socialLinks } = req.body;
@@ -269,12 +257,10 @@ export const updateSocialLinks = async (req, res) => {
     }
 };
 
-// @desc    GENERATE DYNAMIC SITEMAP (With Live Packages & Blogs)
-// @route   GET /api/settings/sitemap
-// @access  Public
+// GENERATE DYNAMIC SITEMAP (With Live Packages & Blogs)
 export const generateSitemap = async (req, res) => {
     try {
-        const baseUrl = req.query.baseUrl || 'https://baigtours.com';
+        const baseUrl = process.env.CLIENT_URL || req.query.baseUrl || 'https://baigtours.com';
         const today = new Date().toISOString().split('T')[0];
 
         const [packages, blogs] = await Promise.all([
@@ -373,13 +359,13 @@ ${blogUrlsXml}
     }
 };
 
-// @desc    GET ROBOTS.TXT
-// @route   GET /api/settings/robots.txt
-// @access  Public
+// GET ROBOTS.TXT
 export const getRobotsTxt = async (req, res) => {
     try {
         const settings = await WebsiteSettings.findOne();
-        const robotsTxt = settings?.robotsTxt || `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: https://baigtours.com/sitemap.xml`;
+        const baseUrl = process.env.CLIENT_URL || 'https://baigtours.com';
+        const defaultRobots = `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ${baseUrl}/sitemap.xml`;
+        const robotsTxt = settings?.robotsTxt || defaultRobots;
 
         res.setHeader('Content-Type', 'text/plain');
         res.send(robotsTxt);
@@ -392,9 +378,7 @@ export const getRobotsTxt = async (req, res) => {
     }
 };
 
-// @desc    UPDATE ROBOTS.TXT
-// @route   PUT /api/settings/update_robots_txt
-// @access  Private/Admin
+// UPDATE ROBOTS.TXT
 export const updateRobotsTxt = async (req, res) => {
     try {
         const { robotsTxt } = req.body;
