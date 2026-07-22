@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Search } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 import SearchField from "./SearchField";
 
 import {
@@ -12,14 +13,54 @@ import {
 } from "@/constants/search";
 
 export default function SearchForm() {
+    
+    const router = useRouter();
+
+    const [destination, setDestination] = useState("");
+    const [packageName, setPackageName] = useState("");
+    const [category, setCategory] = useState("");
+    const [departureDate, setDepartureDate] = useState("");
+    const [priceRange, setPriceRange] = useState("");
+    const [duration, setDuration] = useState("");
+
+    const handleSearch = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const params = new URLSearchParams();
+
+  if (destination)
+    params.set("destination", destination);
+
+  if (packageName)
+    params.set("package", packageName);
+
+  if (category)
+    params.set("category", category);
+
+  if (departureDate)
+    params.set("date", departureDate);
+
+  if (priceRange)
+    params.set("price", priceRange);
+
+  if (duration)
+    params.set("duration", duration);
+
+  router.push(`/packages?${params.toString()}`);
+};
+
   return (
-    <form className="rounded-2xl bg-white p-8 shadow-xl">
+    <form 
+    onSubmit={handleSearch}
+    className="rounded-2xl bg-white p-8 shadow-xl">
       <div className="grid gap-6 lg:grid-cols-3">
 
         {/* Destination */}
         <SearchField
           label="Destination"
           options={destinations}
+          value={destination}
+          onChange={setDestination}
         />
 
         {/* Package Name */}
@@ -30,6 +71,8 @@ export default function SearchForm() {
 
           <input
             type="text"
+            value={packageName}
+            onChange={(e) => setPackageName(e.target.value)} 
             placeholder="Search package..."
             className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
           />
@@ -39,6 +82,8 @@ export default function SearchForm() {
         <SearchField
           label="Tour Category"
           options={categories}
+          value={category}
+          onChange={setCategory}
         />
 
         {/* Date */}
@@ -49,6 +94,8 @@ export default function SearchForm() {
 
           <input
             type="date"
+            value={departureDate}
+            onChange={(e) => setDepartureDate(e.target.value)}
             className="w-full rounded-xl border border-[#E2E8F0] px-4 py-3 focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20"
           />
         </div>
@@ -57,12 +104,16 @@ export default function SearchForm() {
         <SearchField
           label="Price Range"
           options={priceRanges}
+          value={priceRange}
+          onChange={setPriceRange}
         />
 
         {/* Duration */}
         <SearchField
           label="Duration"
           options={durations}
+          value={duration}
+          onChange={setDuration}
         />
 
       </div>

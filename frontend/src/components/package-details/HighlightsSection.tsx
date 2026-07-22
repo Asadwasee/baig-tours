@@ -12,27 +12,27 @@ import {
 export default function HighlightsSection() {
   const highlights = [
     {
-      icon: <Mountain size={20} />,
+      icon: <Mountain size={22} />,
       title: "Khunjerab Pass",
     },
     {
-      icon: <Camera size={20} />,
+      icon: <Camera size={22} />,
       title: "Attabad Lake",
     },
     {
-      icon: <Sunrise size={20} />,
+      icon: <Sunrise size={22} />,
       title: "Eagle Nest Sunrise",
     },
     {
-      icon: <Trees size={20} />,
+      icon: <Trees size={22} />,
       title: "Altit & Baltit Fort",
     },
     {
-      icon: <Ship size={20} />,
+      icon: <Ship size={22} />,
       title: "Boating Experience",
     },
     {
-      icon: <Tent size={20} />,
+      icon: <Tent size={22} />,
       title: "Bonfire Night",
     },
   ];
@@ -56,12 +56,12 @@ export default function HighlightsSection() {
   ];
 
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white py-20">
       <div className="container-custom">
 
         {/* Heading */}
 
-        <div className="mb-12">
+        <div className="max-w-3xl">
 
           <span className="font-semibold uppercase tracking-wider text-[#F97316]">
             Tour Experience
@@ -71,25 +71,35 @@ export default function HighlightsSection() {
             Highlights & Services
           </h2>
 
+          <p className="mt-5 leading-8 text-gray-600">
+            Experience the very best of Hunza through breathtaking landscapes,
+            unforgettable attractions, and premium travel services carefully
+            designed to make your journey comfortable and memorable.
+          </p>
+
         </div>
 
-        {/* Highlights */}
+        {/* Tour Highlights */}
 
-        <div className="mb-14">
+        <div className="mt-14">
 
           <h3 className="mb-6 font-[var(--font-poppins)] text-2xl font-bold text-[#1E293B]">
             Tour Highlights
           </h3>
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
 
             {highlights.map((item) => (
+
               <div
                 key={item.title}
-                className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-[#F8FAFC] p-5 transition hover:-translate-y-1 hover:border-[#0F766E] hover:shadow-md"
+                className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0F766E]/20 hover:shadow-lg"
               >
-                <div className="rounded-xl bg-[#0F766E]/10 p-3 text-[#0F766E]">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F8FAFC] text-[#0F766E] transition group-hover:bg-[#0F766E]/10">
+
                   {item.icon}
+
                 </div>
 
                 <span className="font-medium text-[#1E293B]">
@@ -97,6 +107,7 @@ export default function HighlightsSection() {
                 </span>
 
               </div>
+
             ))}
 
           </div>
@@ -105,35 +116,61 @@ export default function HighlightsSection() {
 
         {/* Included & Excluded */}
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="mt-16 grid gap-8 lg:grid-cols-2">
 
           {/* Included */}
 
-          <div className="rounded-3xl border border-green-200 bg-green-50 p-8">
+          <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
 
-            <h3 className="mb-6 flex items-center gap-3 font-[var(--font-poppins)] text-2xl font-bold text-[#16A34A]">
+            <div className="mb-8 flex items-center gap-3">
 
-              <CheckCircle2 />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100">
 
-              Included Services
+                <CheckCircle2
+                  size={24}
+                  className="text-green-600"
+                />
 
-            </h3>
+              </div>
+
+              <div>
+
+                <h3 className="font-[var(--font-poppins)] text-2xl font-bold text-[#1E293B]">
+                  What's Included
+                </h3>
+
+                <p className="text-sm text-gray-500">
+                  Everything covered in your package
+                </p>
+
+              </div>
+
+            </div>
 
             <div className="space-y-4">
 
               {included.map((item) => (
+
                 <div
                   key={item}
-                  className="flex items-center gap-3"
+                  className="flex items-center justify-between rounded-xl bg-[#F8FAFC] px-5 py-4"
                 >
-                  <CheckCircle2
-                    size={20}
-                    className="text-[#16A34A]"
-                  />
 
-                  <span>{item}</span>
+                  <div className="flex items-center gap-3">
+
+                    <CheckCircle2
+                      size={18}
+                      className="text-green-600"
+                    />
+
+                    <span className="font-medium text-[#1E293B]">
+                      {item}
+                    </span>
+
+                  </div>
 
                 </div>
+
               ))}
 
             </div>
@@ -142,31 +179,57 @@ export default function HighlightsSection() {
 
           {/* Excluded */}
 
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-8">
+          <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
 
-            <h3 className="mb-6 flex items-center gap-3 font-[var(--font-poppins)] text-2xl font-bold text-[#DC2626]">
+            <div className="mb-8 flex items-center gap-3">
 
-              <XCircle />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
 
-              Excluded Services
+                <XCircle
+                  size={24}
+                  className="text-red-500"
+                />
 
-            </h3>
+              </div>
+
+              <div>
+
+                <h3 className="font-[var(--font-poppins)] text-2xl font-bold text-[#1E293B]">
+                  Not Included
+                </h3>
+
+                <p className="text-sm text-gray-500">
+                  Expenses not covered in this package
+                </p>
+
+              </div>
+
+            </div>
 
             <div className="space-y-4">
 
               {excluded.map((item) => (
+
                 <div
                   key={item}
-                  className="flex items-center gap-3"
+                  className="flex items-center justify-between rounded-xl bg-[#F8FAFC] px-5 py-4"
                 >
-                  <XCircle
-                    size={20}
-                    className="text-[#DC2626]"
-                  />
 
-                  <span>{item}</span>
+                  <div className="flex items-center gap-3">
+
+                    <XCircle
+                      size={18}
+                      className="text-red-500"
+                    />
+
+                    <span className="font-medium text-[#1E293B]">
+                      {item}
+                    </span>
+
+                  </div>
 
                 </div>
+
               ))}
 
             </div>

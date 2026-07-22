@@ -4,45 +4,57 @@ import {
   Users,
   MapPin,
   Phone,
+  ShieldCheck,
+  BadgeCheck,
 } from "lucide-react";
 
 export default function BookingCard() {
   return (
-    <aside className="sticky top-28 rounded-3xl bg-white p-7 shadow-xl">
+    <aside className="sticky top-28 rounded-[28px] border border-gray-100 bg-white p-6 shadow-lg">
 
       {/* Price */}
 
       <div>
-
-        <p className="text-lg text-gray-400 line-through">
+        <p className="text-sm text-gray-400 line-through">
           PKR 80,000
         </p>
 
-        <h2 className="font-[var(--font-poppins)] text-5xl font-bold text-[#F97316]">
+        <div className="mt-1 flex items-end gap-2">
 
-          PKR 65,000
+          <h2 className="font-[var(--font-poppins)] text-4xl font-bold text-[#F97316]">
+            PKR 65,000
+          </h2>
 
-        </h2>
+          <span className="mb-1 text-sm text-gray-500">
+            /person
+          </span>
 
-        <p className="mt-1 text-gray-500">
-          Per Person
-        </p>
+        </div>
+
+        <div className="mt-3 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-[#F97316]">
+          Save 20%
+        </div>
+      </div>
+
+      {/* Trust Badges */}
+
+      <div className="mt-6 space-y-3 rounded-2xl bg-[#F8FAFC] p-4">
+
+        <TrustItem
+          icon={<ShieldCheck size={18} />}
+          text="Instant Confirmation"
+        />
+
+        <TrustItem
+          icon={<BadgeCheck size={18} />}
+          text="Best Price Guarantee"
+        />
 
       </div>
 
-      {/* Discount */}
+      {/* Tour Info */}
 
-      <div className="mt-5 inline-flex rounded-full bg-orange-100 px-4 py-2 font-semibold text-[#F97316]">
-
-        Save 20%
-
-      </div>
-
-      <hr className="my-7" />
-
-      {/* Information */}
-
-      <div className="space-y-5">
+      <div className="mt-6 space-y-4">
 
         <Info
           icon={<Clock3 size={18} />}
@@ -64,7 +76,7 @@ export default function BookingCard() {
 
         <Info
           icon={<Users size={18} />}
-          label="Seats Left"
+          label="Seats"
           value="8 Available"
         />
 
@@ -78,21 +90,36 @@ export default function BookingCard() {
 
       {/* Buttons */}
 
-      <button className="mt-8 w-full rounded-xl bg-[#F97316] py-4 font-semibold text-white transition hover:bg-[#0B5C56]">
-
+      <button className="mt-8 w-full rounded-xl bg-[#F97316] py-3.5 font-semibold text-white transition duration-300 hover:bg-[#0B5C56]">
         Book Now
-
       </button>
 
-      <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#0F766E] py-4 font-semibold text-[#0F766E] transition hover:bg-[#0F766E] hover:text-white">
-
+      <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#0F766E] py-3.5 font-semibold text-[#0F766E] transition duration-300 hover:bg-[#0F766E] hover:text-white">
         <Phone size={18} />
-
         WhatsApp Inquiry
-
       </button>
 
     </aside>
+  );
+}
+
+function TrustItem({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 text-sm text-[#1E293B]">
+
+      <div className="rounded-lg bg-[#0F766E]/10 p-2 text-[#0F766E]">
+        {icon}
+      </div>
+
+      <span>{text}</span>
+
+    </div>
   );
 }
 
@@ -106,25 +133,23 @@ function Info({
   value: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-center justify-between rounded-xl border border-gray-100 px-4 py-3">
 
-      <div className="mt-1 rounded-lg bg-[#0F766E]/10 p-2 text-[#0F766E]">
+      <div className="flex items-center gap-3">
 
-        {icon}
+        <div className="rounded-lg bg-[#0F766E]/10 p-2 text-[#0F766E]">
+          {icon}
+        </div>
 
-      </div>
-
-      <div>
-
-        <p className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500">
           {label}
-        </p>
-
-        <p className="font-semibold text-[#1E293B]">
-          {value}
-        </p>
+        </span>
 
       </div>
+
+      <span className="text-sm font-semibold text-[#1E293B]">
+        {value}
+      </span>
 
     </div>
   );

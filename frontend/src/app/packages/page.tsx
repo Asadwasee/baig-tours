@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import PackagesHero from "@/components/packages/PackagesHero";
 import SearchSection from "@/components/packages/SearchSection";
@@ -9,12 +10,28 @@ import PackageGrid from "@/components/packages/PackageGrid";
 import { allPackages } from "@/constants/allPackages";
 
 export default function PackagesPage() {
-    const [search, setSearch] = useState("");
-    const [selectedDestinations, setSelectedDestinations] = useState<string[]>([]);
-    const [category, setCategory] = useState("");
-    const [duration, setDuration] = useState("");
-    const [maxPrice, setMaxPrice] = useState(500000);
-    const [sortBy, setSortBy] = useState("Latest");
+
+    const searchParams = useSearchParams();
+
+const initialSearch = searchParams.get("package") || "";
+const initialDestination = searchParams.get("destination") || "";
+const initialCategory = searchParams.get("category") || "";
+const initialDuration = searchParams.get("duration") || "";
+
+const [search, setSearch] = useState(initialSearch);
+
+const [selectedDestinations, setSelectedDestinations] =
+  useState<string[]>(
+    initialDestination ? [initialDestination] : []
+  );
+
+const [category, setCategory] = useState(initialCategory);
+
+const [duration, setDuration] = useState(initialDuration);
+
+const [maxPrice, setMaxPrice] = useState(500000);
+
+const [sortBy, setSortBy] = useState("Latest");
 
     const filteredPackages = useMemo(() => {
   let packages = allPackages.filter((tour) => {

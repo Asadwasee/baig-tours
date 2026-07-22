@@ -35,37 +35,25 @@ export default function AboutHero() {
 
         </div>
 
-        {/* Badge */}
+        <div className="max-w-3xl">
 
-        <span className="inline-block rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+  <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur">
+    Discover Our Story
+  </span>
 
-          Discover Our Story
+  <h1 className="mt-6 font-[var(--font-poppins)] text-5xl font-bold leading-tight">
+    Passionate About Creating
 
-        </span>
+    <span className="block text-[#FBBF24]">
+      Unforgettable Journeys
+    </span>
+  </h1>
 
-        {/* Heading */}
+  <p className="mt-6 max-w-2xl text-lg leading-8 text-white/90">
+    Baig Tours has been helping travelers explore Pakistan and the world through carefully planned tours, exceptional hospitality, and unforgettable travel experiences. Every journey is designed to be safe, comfortable, and memorable.
+  </p>
 
-        <h1 className="mt-6 max-w-4xl font-[var(--font-poppins)] text-5xl font-bold leading-tight md:text-6xl">
-
-          Passionate About Creating
-
-          <span className="block text-[#FBBF24]">
-            Unforgettable Journeys
-          </span>
-
-        </h1>
-
-        {/* Description */}
-
-        <p className="mt-8 max-w-3xl text-lg leading-8 text-white/90">
-
-          Baig Tours has been helping travelers explore Pakistan and the world
-          with carefully planned tours, exceptional hospitality, and memorable
-          travel experiences. From breathtaking northern valleys to world-class
-          international destinations, we are committed to making every journey
-          safe, enjoyable, and unforgettable.
-
-        </p>
+</div>
 
       </div>
 

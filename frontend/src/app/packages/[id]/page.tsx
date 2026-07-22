@@ -14,11 +14,11 @@ export default function PackageDetailsPage() {
     <>
       <PackageHero />
 
-      <section className="bg-white py-14">
+      <section className="bg-white py-16">
 
         <div className="container-custom">
 
-          <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
+          <div className="grid gap-10 lg:grid-cols-[1.7fr_0.8fr]">
 
             <ImageGallery />
 
