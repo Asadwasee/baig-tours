@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* ===========================
+   CSS Variables
+=========================== */
+
+:root {
+  --background: #f8fafc;
+  --foreground: #1e293b;
+
+  --primary: #0f766e;
+  --primary-dark: #0b5c56;
+
+  --secondary: #f97316;
+  --accent: #fbbf24;
+
+  --border: #e2e8f0;
+}
+
+/* ===========================
+   Base Styles
+=========================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* ===========================
+   Headings
+=========================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+/* ===========================
+   Utility Classes
+=========================== */
+
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-padding {
+  @apply py-16 md:py-20 lg:py-24;
+}

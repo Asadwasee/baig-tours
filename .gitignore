@@ -1,0 +1,15 @@
+<<<<<<< HEAD
+.env
+node_modules/
+=======
+node_modules/
+.env
+.CLAUDE.md
+.AGENT.md
+.uploads
+.mcp.json
+.windsurfrules
+.cursor/
+.agents/
+.jetro/
+>>>>>>> origin/feature/blog-apis
