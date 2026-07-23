@@ -10,6 +10,7 @@ export interface TourPackage {
 
   // Optional (for API integration later)
   originalPrice?: number;
+  discount?: number;
   discountPrice?: number;
   availableSeats?: number;
   rating?: number;

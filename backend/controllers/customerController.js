@@ -1,4 +1,5 @@
 import Customer from '../models/Customer.js';
+import Booking from '../models/Booking.js';
 
 // @desc    Create a customer
 // @route   POST /api/customers
@@ -25,6 +26,31 @@ export const getCustomers = async (req, res) => {
   try {
     const customers = await Customer.find({}).sort({ createdAt: -1 });
     res.json(customers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get customer booking history
+// @route   GET /api/customers/:id/bookings
+// @access  Private/Admin
+export const getCustomerBookingHistory = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    const bookings = await Booking.find({ customer: customer._id })
+      .sort({ createdAt: -1 })
+      .populate('package', 'title destination price');
+
+    res.json({
+      customer,
+      totalBookings: bookings.length,
+      bookings,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

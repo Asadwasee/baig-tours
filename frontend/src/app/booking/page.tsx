@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const initialForm = {
   fullName: "",
@@ -15,9 +17,36 @@ const initialForm = {
   specialRequests: "",
 };
 
+type PackageOption = {
+  _id: string;
+  title: string;
+  destination: string;
+  price?: number;
+  discountPrice?: number;
+};
+
 export default function BookingPage() {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [packages, setPackages] = useState<PackageOption[]>([]);
+  const [isLoadingPackages, setIsLoadingPackages] = useState(true);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        setIsLoadingPackages(true);
+        const response = await axios.get(`${API_BASE}/api/packages`);
+        const items = response.data?.packages ?? [];
+        setPackages(items);
+      } catch (error) {
+        toast.error("Unable to load available packages right now.");
+      } finally {
+        setIsLoadingPackages(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -26,43 +55,64 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const normalizedName = form.fullName.trim();
+    const normalizedEmail = form.email.trim();
+    const normalizedPhone = form.phone.trim();
+    const normalizedRequests = form.specialRequests.trim();
+    const adults = Number(form.adults);
+    const children = Number(form.children);
+
+    if (!normalizedName || !normalizedEmail || !normalizedPhone || !form.packageId || !form.travelDate) {
+      toast.error("Please fill in all required booking details.");
+      return;
+    }
+
+    if (!Number.isInteger(adults) || adults < 1 || !Number.isInteger(children) || children < 0) {
+      toast.error("Please enter valid adult and child counts.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const payload = {
       customerDetails: {
-        fullName: form.fullName.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim(),
+        fullName: normalizedName,
+        email: normalizedEmail,
+        phone: normalizedPhone,
       },
       package: form.packageId,
       travelDate: form.travelDate,
-      adults: Number(form.adults),
-      children: Number(form.children),
-      specialRequests: form.specialRequests.trim(),
+      adults,
+      children,
+      specialRequests: normalizedRequests,
     };
 
+    const bookingToast = toast.loading("Submitting your booking request...");
+
     try {
-      const response = await axios.post("http://localhost:5000/api/bookings", payload, {
+      const response = await axios.post(`${API_BASE}/api/bookings`, payload, {
         headers: { "Content-Type": "application/json" },
       });
 
-      toast.success("Booking request submitted successfully.");
+      toast.success("Booking request submitted successfully.", { id: bookingToast });
+      toast.success(`Reference: ${response.data?._id ?? "created"}`);
       setForm(initialForm);
-      console.log(response.data);
     } catch (error: unknown) {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || "Booking failed. Please try again."
         : "Booking failed. Please try again.";
-      toast.error(message);
+
+      toast.error(message, { id: bookingToast });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-16 text-slate-800 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-800 sm:px-6 lg:px-8 lg:py-16">
       <Toaster position="top-right" />
-      <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+      <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8 lg:p-10">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#F97316]">Booking Form</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Reserve your dream trip</h1>
@@ -119,11 +169,15 @@ export default function BookingPage() {
                 value={form.packageId}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-[#0B5C56]"
+                disabled={isLoadingPackages}
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-[#0B5C56] disabled:cursor-not-allowed disabled:bg-slate-100"
               >
-                <option value="">Choose a package</option>
-                <option value="68b76ce33d62eb60ef4bb0a2">Hunza Valley Escape</option>
-                <option value="68b76ce33d62eb60ef4bb0a2">Skardu Adventure</option>
+                <option value="">{isLoadingPackages ? "Loading packages..." : "Choose a package"}</option>
+                {packages.map((pkg) => (
+                  <option key={pkg._id} value={pkg._id}>
+                    {pkg.title} — {pkg.destination}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -183,10 +237,10 @@ export default function BookingPage() {
           <div className="lg:col-span-2">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoadingPackages || packages.length === 0}
               className="w-full rounded-2xl bg-[#F97316] px-6 py-3 font-semibold text-white transition hover:bg-[#0B5C56] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "Submitting..." : "Submit Booking"}
+              {isSubmitting ? "Submitting..." : isLoadingPackages ? "Loading packages..." : packages.length === 0 ? "No packages available" : "Submit Booking"}
             </button>
           </div>
         </form>
