@@ -1,14 +1,15 @@
 import Review from '../models/Review.js';
+
 // CREATE REVIEW (Public - Customer submits review)
 export const createReview = async (req, res) => {
     try {
-        const { customerName, customerEmail, tourName, customerId, rating, review } = req.body;
+        const { customerName, customerEmail, tourName, packageId, customerId, rating, review } = req.body;
 
-        // Validation
-        if (!customerName || !customerEmail || !tourName || !rating || !review) {
+        // Validation (Added packageId validation)
+        if (!customerName || !customerEmail || !tourName || !packageId || !rating || !review) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide all required fields: customerName, customerEmail, tourName, customerId, rating, review'
+                message: 'Please provide all required fields: customerName, customerEmail, tourName, packageId, rating, review'
             });
         }
 
@@ -25,6 +26,7 @@ export const createReview = async (req, res) => {
             customerName,
             customerEmail,
             tourName,
+            package: packageId, // Saving package reference
             customerId,
             rating,
             review,
@@ -46,13 +48,15 @@ export const createReview = async (req, res) => {
         });
     }
 };
-// GET ALL REVIEWS
+
+// GET ALL REVIEWS (Supports filtering by packageId for frontend)
 export const getApprovedReviews = async (req, res) => {
     try {
-        const { customerId, page = 1, limit = 10 } = req.query;
+        const { customerId, packageId, page = 1, limit = 10 } = req.query;
         const query = { status: 'approved', isActive: true };
 
         if (customerId) query.customerId = customerId;
+        if (packageId) query.package = packageId; // Frontend can now filter reviews by packageId
 
         const skip = (page - 1) * limit;
         const [reviews, total] = await Promise.all([
@@ -92,6 +96,7 @@ export const getApprovedReviews = async (req, res) => {
         });
     }
 };
+
 // GET ALL REVIEWS FOR ADMIN
 export const getAllReviewsAdmin = async (req, res) => {
     try {
@@ -147,6 +152,7 @@ export const getAllReviewsAdmin = async (req, res) => {
         });
     }
 };
+
 // GET SINGLE REVIEW BY ID
 export const getReviewById = async (req, res) => {
     try {
@@ -173,6 +179,7 @@ export const getReviewById = async (req, res) => {
         });
     }
 };
+
 // APPROVE REVIEW (Admin)
 export const approveReview = async (req, res) => {
     try {
@@ -187,7 +194,6 @@ export const approveReview = async (req, res) => {
             });
         }
 
-        // Check if already approved
         if (review.status === 'approved') {
             return res.status(400).json({
                 success: false,
@@ -212,6 +218,7 @@ export const approveReview = async (req, res) => {
         });
     }
 };
+
 // REJECT REVIEW (Admin)
 export const rejectReview = async (req, res) => {
     try {
@@ -226,7 +233,6 @@ export const rejectReview = async (req, res) => {
             });
         }
 
-        // Check if already rejected
         if (review.status === 'rejected') {
             return res.status(400).json({
                 success: false,
@@ -251,6 +257,7 @@ export const rejectReview = async (req, res) => {
         });
     }
 };
+
 // DELETE REVIEW (Admin)
 export const deleteReview = async (req, res) => {
     try {
@@ -278,6 +285,7 @@ export const deleteReview = async (req, res) => {
         });
     }
 };
+
 // SOFT DELETE REVIEW (Admin - Hide from public)
 export const hideReview = async (req, res) => {
     try {
@@ -307,6 +315,7 @@ export const hideReview = async (req, res) => {
         });
     }
 };
+
 // UPDATE REVIEW
 export const updateReview = async (req, res) => {
     try {
@@ -314,14 +323,13 @@ export const updateReview = async (req, res) => {
         const { rating, review } = req.body;
 
         const existingReview = await Review.findById(id);
-        if (!review) {
+        if (!existingReview) {
             return res.status(404).json({
                 success: false,
                 message: 'Review not found'
             });
         }
 
-        //  Only allow updating if not approved yet
         if (existingReview.status === 'approved') {
             return res.status(400).json({
                 success: false,

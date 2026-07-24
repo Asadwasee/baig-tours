@@ -61,6 +61,14 @@ const bookingSchema = new mongoose.Schema(
       enum: ['pending', 'paid', 'partial', 'refunded'],
       default: 'pending',
     },
+    city: {
+      type: String,
+      trim: true,
+    },
+    whatsappNumber: {
+      type: String,
+      trim: true,
+    },
     specialRequests: {
       type: String,
       trim: true,

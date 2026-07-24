@@ -20,6 +20,14 @@ const customerSchema = new mongoose.Schema(
       required: [true, 'Customer phone is required'],
       trim: true,
     },
+    whatsappNumber: {
+      type: String,
+      trim: true,
+    },
+    city: {
+      type: String,
+      trim: true,
+    },
     nationality: {
       type: String,
       default: 'Pakistan',

@@ -17,6 +17,11 @@ const reviewSchema = new mongoose.Schema({
         required: [true, 'Tour name is required'],
         trim: true
     },
+    package: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Package',
+        required: [true, 'Tour package reference is required']
+    },
     customerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Customer'
@@ -55,6 +60,7 @@ const reviewSchema = new mongoose.Schema({
 // Index for faster queries
 reviewSchema.index({ status: 1, createdAt: -1 });
 reviewSchema.index({ customerId: 1 });
+reviewSchema.index({ package: 1 }); 
 
 const Review = mongoose.model('Review', reviewSchema);
 
