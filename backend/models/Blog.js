@@ -21,18 +21,42 @@ const blogSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Blog content is required']
     },
+    summary: {
+        type: String,
+        trim: true,
+        maxlength: [300, 'Summary cannot exceed 300 characters']
+    },
     author: {
         type: String,
         default: 'Anonymous'
+    },
+    authorImage: {
+        type: String,
+        default: ''
+    },
+    authorBio: {
+        type: String,
+        trim: true,
+        maxlength: [500, 'Author bio cannot exceed 500 characters']
     },
     publishDate: {
         type: Date,
         default: Date.now
     },
+    // ✅ Updated Categories
     category: {
         type: String,
         required: [true, 'Category is required'],
-        enum: ['travel-tips', 'destinations', 'food-guides', 'road-trips', 'hotel-reviews', 'news', 'other']
+        enum: [
+            'travel-tips',      // Travel Tips
+            'destinations',     // Destinations
+            'food-guides',      // Food Guides
+            'road-trips',       // Road Trips
+            'hotel-reviews',    // Hotel Reviews
+            'news',             // News
+            'tour-guides',      // Tour Guides (New)
+            'visa-guides'       // Visa Guides (New)
+        ]
     },
     tags: [{
         type: String,
@@ -46,9 +70,22 @@ const blogSchema = new mongoose.Schema({
     isPublished: {
         type: Boolean,
         default: true
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    views: {
+        type: Number,
+        default: 0
+    },
+    readTime: {
+        type: Number,
+        default: 5
     }
 }, { timestamps: true });
 
+// Auto-generate slug
 blogSchema.pre('save', function() {
     if (!this.slug && this.title) {
         this.slug = this.title
@@ -57,6 +94,12 @@ blogSchema.pre('save', function() {
             .replace(/\s+/g, '-');
     }
 });
+
+// Increment views method
+blogSchema.methods.incrementViews = async function() {
+    this.views += 1;
+    return await this.save();
+};
 
 const Blog = mongoose.model('Blog', blogSchema);
 export default Blog;

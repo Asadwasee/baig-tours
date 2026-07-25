@@ -8,18 +8,23 @@ import {
   duplicatePackage,
 } from '../controllers/packageController.js';
 import { protect } from '../middlewares/authMiddleware.js';
-import upload from '../middlewares/uploadMiddleware.js'; 
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
-// Yahan app.post par upload middleware lagayein jo 'images' key se multiple files accept karega
+// Middleware to handle both images and promo video fields
+const packageUpload = upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'promoVideo', maxCount: 1 },
+]);
+
 router.route('/')
   .get(getPackages)
-  .post(protect, upload.array('images', 5), createPackage);
+  .post(protect, packageUpload, createPackage);
 
 router.route('/:id')
   .get(getPackageById)
-  .put(protect, upload.array('images', 5), updatePackage)
+  .put(protect, packageUpload, updatePackage)
   .delete(protect, deletePackage);
 
 router.post('/:id/duplicate', protect, duplicatePackage);
