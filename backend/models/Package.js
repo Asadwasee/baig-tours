@@ -33,8 +33,9 @@ const packageSchema = new mongoose.Schema(
     excludedServices: [{ type: String }],
     itinerary: [itinerarySchema],
     faqs: [faqSchema],
-    images: [{ type: String }], // Cloudinary or Local paths
-    videos: [{ type: String }],
+    images: [{ type: String }], // Cloudinary image URLs
+    videos: [{ type: String }], // Gallery Video URLs
+    promoVideo: { type: String, default: '' }, // Featured promo video URL or Cloudinary Link
     isFeatured: { type: Boolean, default: false },
     isUpcoming: { type: Boolean, default: false },
   },

@@ -1,20 +1,14 @@
 import Gallery from '../models/Gallery.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// UPLOAD MEDIA (Image/Video)
+// @desc    Upload media (Image/Video to Cloudinary)
+// @route   POST /api/gallery/media/upload
+// @access  Private/Admin
 export const uploadMedia = async (req, res) => {
     try {
         const { title, description, category } = req.body;
 
         if (!title || !category) {
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             return res.status(400).json({
                 success: false,
                 message: 'Title and category are required'
@@ -28,11 +22,9 @@ export const uploadMedia = async (req, res) => {
             });
         }
 
-        //Check file type
         const fileType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
-        const mediaUrl = `/uploads/${req.file.filename}`;
+        const mediaUrl = await uploadToCloudinary(req.file.buffer, 'baig_tours_gallery');
 
-        //Create gallery entry
         const gallery = await Gallery.create({
             title,
             description: description || '',
@@ -50,16 +42,16 @@ export const uploadMedia = async (req, res) => {
 
     } catch (error) {
         console.error('Upload Media Error:', error);
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(500).json({
             success: false,
             message: error.message || 'Server error'
         });
     }
 };
-// GET ALL MEDIA
+
+// @desc    Get all media
+// @route   GET /api/gallery/media/getall
+// @access  Public
 export const getAllMedia = async (req, res) => {
     try {
         const { category, mediaType, page = 1, limit = 20 } = req.query;
@@ -96,7 +88,10 @@ export const getAllMedia = async (req, res) => {
         });
     }
 };
-// GET MEDIA BY CATEGORY
+
+// @desc    Get media by category
+// @route   GET /api/gallery/media/category/:category
+// @access  Public
 export const getMediaByCategory = async (req, res) => {
     try {
         const { category } = req.params;
@@ -116,7 +111,10 @@ export const getMediaByCategory = async (req, res) => {
         });
     }
 };
-// GET SINGLE MEDIA
+
+// @desc    Get single media
+// @route   GET /api/gallery/media/:id
+// @access  Public
 export const getMediaById = async (req, res) => {
     try {
         const media = await Gallery.findById(req.params.id);
@@ -141,7 +139,10 @@ export const getMediaById = async (req, res) => {
         });
     }
 };
-// UPDATE MEDIA
+
+// @desc    Update media (With Cloudinary Cleanup)
+// @route   PUT /api/gallery/media/update/:id
+// @access  Private/Admin
 export const updateMedia = async (req, res) => {
     try {
         const { id } = req.params;
@@ -149,22 +150,18 @@ export const updateMedia = async (req, res) => {
 
         const media = await Gallery.findById(id);
         if (!media) {
-            if (req.file) {
-                fs.unlinkSync(req.file.path);
-            }
             return res.status(404).json({
                 success: false,
                 message: 'Media not found'
             });
         }
 
-        //If new file uploaded, delete old one
+        // Cleanup old media file if a new file is uploaded
         if (req.file) {
-            const oldFilePath = path.join('uploads', path.basename(media.mediaUrl));
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
+            if (media.mediaUrl) {
+                await deleteFromCloudinary(media.mediaUrl);
             }
-            updateData.mediaUrl = `/uploads/${req.file.filename}`;
+            updateData.mediaUrl = await uploadToCloudinary(req.file.buffer, 'baig_tours_gallery');
             updateData.mediaType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
         }
 
@@ -181,16 +178,16 @@ export const updateMedia = async (req, res) => {
         });
     } catch (error) {
         console.error('Update Media Error:', error);
-        if (req.file) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(500).json({
             success: false,
             message: error.message || 'Server error'
         });
     }
 };
-// DELETE MEDIA
+
+// @desc    Delete media (With Cloudinary Cleanup)
+// @route   DELETE /api/gallery/media/:id
+// @access  Private/Admin
 export const deleteMedia = async (req, res) => {
     try {
         const { id } = req.params;
@@ -203,12 +200,14 @@ export const deleteMedia = async (req, res) => {
             });
         }
 
-        // Delete physical file
+        // Delete main media file from Cloudinary
         if (media.mediaUrl) {
-            const filePath = path.join('uploads', path.basename(media.mediaUrl));
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+            await deleteFromCloudinary(media.mediaUrl);
+        }
+
+        // Delete thumbnail if present
+        if (media.thumbnail) {
+            await deleteFromCloudinary(media.thumbnail);
         }
 
         await media.deleteOne();
@@ -226,9 +225,9 @@ export const deleteMedia = async (req, res) => {
     }
 };
 
-// ============================================================
-// GET MEDIA STATS (Count by Category)
-// ============================================================
+// @desc    Get media stats (Count by Category)
+// @route   GET /api/gallery/media/media_stats
+// @access  Public
 export const getMediaStats = async (req, res) => {
     try {
         const stats = await Gallery.aggregate([
