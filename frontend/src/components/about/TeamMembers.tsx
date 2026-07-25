@@ -1,7 +1,30 @@
-import Image from "next/image";
-import {FaFacebookF,FaInstagram,FaLinkedinIn,} from "react-icons/fa";
+// components/about/TeamMembers.tsx
+'use client';
 
-const team = [
+import Image from "next/image";
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+
+interface TeamMember {
+  id: number | string;
+  name: string;
+  role: string;
+  image: string;
+  bio: string;
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
+}
+
+interface TeamMembersProps {
+  team?: TeamMember[];
+  title?: string;
+  subtitle?: string;
+  description?: string;
+}
+
+const defaultTeam: TeamMember[] = [
   {
     id: 1,
     name: "Muhammad Baig",
@@ -32,106 +55,81 @@ const team = [
   },
 ];
 
-export default function TeamMembers() {
+export default function TeamMembers({ 
+  team = defaultTeam,
+  title = "The People Behind Every Journey",
+  subtitle = "Meet Our Team",
+  description = "Our experienced travel professionals work together to make every journey smooth, memorable, and stress-free for our travelers."
+}: TeamMembersProps) {
   return (
     <section className="bg-[#F8FAFC] py-20">
-
       <div className="container-custom">
 
         {/* Section Header */}
-
         <div className="mx-auto mb-16 max-w-3xl text-center">
-
           <span className="font-semibold uppercase tracking-wider text-[#F97316]">
-            Meet Our Team
+            {subtitle}
           </span>
-
           <h2 className="mt-4 font-[var(--font-poppins)] text-4xl font-bold text-[#1E293B]">
-            The People Behind Every Journey
+            {title}
           </h2>
-
           <p className="mt-5 leading-8 text-gray-600">
-            Our experienced travel professionals work together to make every
-            journey smooth, memorable, and stress-free for our travelers.
+            {description}
           </p>
-
         </div>
 
         {/* Team Grid */}
-
         <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-
           {team.map((member) => (
             <div
               key={member.id}
               className="group overflow-hidden rounded-3xl bg-white shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
             >
-
               {/* Image */}
-
               <div className="relative h-80 overflow-hidden">
-
                 <Image
                   src={member.image}
                   alt={member.name}
                   fill
                   className="object-cover transition duration-700 group-hover:scale-110"
                 />
-
               </div>
 
               {/* Content */}
-
               <div className="p-6 text-center">
-
                 <h3 className="font-[var(--font-poppins)] text-2xl font-bold text-[#1E293B]">
                   {member.name}
                 </h3>
-
-                <p className="mt-2 font-medium text-[#F97316]">
-                  {member.role}
-                </p>
-
-                <p className="mt-5 leading-7 text-gray-600">
-                  {member.bio}
-                </p>
+                <p className="mt-2 font-medium text-[#F97316]">{member.role}</p>
+                <p className="mt-5 leading-7 text-gray-600">{member.bio}</p>
 
                 {/* Social */}
-
                 <div className="mt-6 flex justify-center gap-4">
-
                   <a
-                    href="#"
+                    href={member.socialLinks?.facebook || "#"}
                     className="rounded-full bg-[#F8FAFC] p-3 transition hover:bg-[#0F766E] hover:text-white"
                   >
                     <FaFacebookF size={18} />
                   </a>
-
                   <a
-                    href="#"
+                    href={member.socialLinks?.instagram || "#"}
                     className="rounded-full bg-[#F8FAFC] p-3 transition hover:bg-[#F97316] hover:text-white"
                   >
                     <FaInstagram size={18} />
                   </a>
-
                   <a
-                    href="#"
+                    href={member.socialLinks?.linkedin || "#"}
                     className="rounded-full bg-[#F8FAFC] p-3 transition hover:bg-[#0B5C56] hover:text-white"
                   >
                     <FaLinkedinIn size={18} />
                   </a>
-
                 </div>
-
               </div>
-
             </div>
           ))}
-
         </div>
 
       </div>
-
     </section>
   );
 }

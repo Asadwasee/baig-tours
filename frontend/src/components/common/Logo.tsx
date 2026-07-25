@@ -4,7 +4,7 @@ export default function Logo() {
   return (
     <Link
       href="/"
-      className="flex items-center gap-3 transition-opacity hover:scale-105"
+      className="flex items-center gap-3 transition-transform hover:scale-105"
     >
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F766E] text-xl font-bold text-white">
         B

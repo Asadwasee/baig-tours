@@ -23,7 +23,7 @@ export default function SearchField({
       <select 
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#1E293B] transition focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20">
+      className="h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#1E293B] transition focus:border-[#0F766E] focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20">
         <option value="">Select {label}</option>
 
         {options.map((option) => (

@@ -52,8 +52,8 @@ export default function SearchForm() {
   return (
     <form 
     onSubmit={handleSearch}
-    className="rounded-2xl bg-white p-8 shadow-xl">
-      <div className="grid gap-6 lg:grid-cols-3">
+    className="rounded-3xl bg-white p-5 shadow-lg sm:p-8">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
 
         {/* Destination */}
         <SearchField
@@ -121,7 +121,7 @@ export default function SearchForm() {
       <div className="mt-8 flex justify-center">
         <button
           type="submit"
-          className="flex items-center gap-2 rounded-xl bg-[#F97316] px-10 py-4 font-semibold text-white transition hover:bg-[#0B5C56]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#F97316] px-8 py-4 font-semibold text-white transition hover:bg-[#0B5C56] sm:w-auto sm:px-10"
         >
           <Search size={20} />
           Search Tours

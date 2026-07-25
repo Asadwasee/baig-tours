@@ -5,8 +5,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/effect-fade";
+import "swiper/css/pagination";
 
 import { heroSlides } from "@/constants/hero";
 
@@ -15,7 +15,7 @@ export default function HeroSlider() {
     <Swiper
       modules={[Autoplay, Pagination, EffectFade]}
       effect="fade"
-      loop={true}
+      loop
       autoplay={{
         delay: 5000,
         disableOnInteraction: false,
@@ -23,11 +23,12 @@ export default function HeroSlider() {
       pagination={{
         clickable: true,
       }}
-      className="h-full w-full"
+      className="h-[80vh] sm:h-[85vh] lg:h-screen"
     >
       {heroSlides.map((slide) => (
         <SwiperSlide key={slide.id}>
-          <div className="relative h-[85vh] w-full">
+          <div className="relative h-[80vh] sm:h-[85vh] lg:h-screen w-full">
+
             <Image
               src={slide.image}
               alt={slide.title}
@@ -36,8 +37,10 @@ export default function HeroSlider() {
               className="object-cover"
             />
 
-            {/* Brand Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0F766E]/80 via-[#0F766E]/50 to-black/20" />
+            {/* Better Overlay */}
+
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0F766E]/90 via-[#0F766E]/60 to-black/40" />
+
           </div>
         </SwiperSlide>
       ))}
