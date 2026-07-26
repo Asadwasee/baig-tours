@@ -1,0 +1,104 @@
+// components/package-details/ImageGallery.tsx
+'use client';
+
+import { useState } from "react";
+import Image from "next/image";
+import { Images, Maximize2 } from "lucide-react";
+
+interface ImageGalleryProps {
+  images: string[];
+}
+
+// Helper to check if given URL is a video
+const isVideoUrl = (url: string) => {
+  return /\.(mp4|webm|ogg|mov)$/i.test(url) || url.includes('/video/upload/');
+};
+
+export default function ImageGallery({ images }: ImageGalleryProps) {
+  const galleryImages = images?.length > 0 ? images : ['/images/placeholder.jpg'];
+  const [selectedImage, setSelectedImage] = useState(galleryImages[0]);
+
+  const isSelectedVideo = isVideoUrl(selectedImage);
+
+  return (
+    <div className="space-y-6">
+      {/* Main Gallery Card */}
+      <div className="overflow-hidden rounded-[32px] border border-gray-100 bg-white shadow-xl">
+        {/* Main Media (Image or Video) */}
+        <div className="relative h-[520px] overflow-hidden bg-black">
+          {isSelectedVideo ? (
+            <video
+              src={selectedImage}
+              controls
+              autoPlay
+              loop
+              muted
+              className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+            />
+          ) : (
+            <Image
+              src={selectedImage}
+              alt="Package Media"
+              fill
+              priority
+              unoptimized={selectedImage.startsWith('http')}
+              className="object-cover transition-transform duration-700 hover:scale-105"
+            />
+          )}
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          
+          {/* Gallery Counter */}
+          <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 backdrop-blur-md shadow-lg z-10">
+            <Images className="h-4 w-4 text-[#0F766E]" />
+            <span className="text-sm font-semibold text-[#1E293B]">
+              {galleryImages.length} Photos
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Thumbnail Gallery */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {galleryImages.map((image, index) => {
+          const isActive = selectedImage === image;
+          const isItemVideo = isVideoUrl(image);
+
+          return (
+            <button
+              key={`${image}-${index}`}
+              onClick={() => setSelectedImage(image)}
+              className={`group relative h-28 overflow-hidden rounded-2xl transition-all duration-300 ${
+                isActive
+                  ? "ring-4 ring-[#F97316] scale-[1.02] shadow-lg"
+                  : "ring-1 ring-gray-200 hover:ring-[#0F766E] hover:scale-[1.02] hover:shadow-md"
+              }`}
+            >
+              {isItemVideo ? (
+                <video
+                  src={image}
+                  muted
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <Image
+                  src={image}
+                  alt={`Gallery ${index + 1}`}
+                  fill
+                  unoptimized={image.startsWith('http')}
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              )}
+
+              {isActive && (
+                <div className="absolute inset-0 bg-[#F97316]/10" />
+              )}
+              <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/10" />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

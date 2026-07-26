@@ -1,0 +1,32 @@
+export const upcomingTours = [
+  {
+    id: 1,
+    title: "Hunza Autumn Tour",
+    destination: "Hunza Valley",
+    duration: "5 Days",
+    departure: "25 Aug 2026",
+    price: 45000,
+    seats: 18,
+    image: "/assets/images/tours/hunza.jpg",
+  },
+  {
+    id: 2,
+    title: "Skardu Adventure",
+    destination: "Skardu",
+    duration: "7 Days",
+    departure: "10 Sep 2026",
+    price: 65000,
+    seats: 12,
+    image: "/assets/images/tours/skardu.jpg",
+  },
+  {
+    id: 3,
+    title: "Dubai City Escape",
+    destination: "Dubai",
+    duration: "4 Days",
+    departure: "18 Sep 2026",
+    price: 125000,
+    seats: 20,
+    image: "/assets/images/tours/dubai.jpg",
+  },
+];
