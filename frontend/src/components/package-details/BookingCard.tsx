@@ -16,6 +16,7 @@ interface BookingCardProps {
 }
 
 export default function BookingCard({ packageData }: BookingCardProps) {
+
   const originalPrice = packageData.discountPrice ? packageData.price : null;
   const finalPrice = packageData.discountPrice || packageData.price;
   const discount = originalPrice ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100) : 0;
@@ -59,7 +60,9 @@ export default function BookingCard({ packageData }: BookingCardProps) {
 
       {/* Buttons */}
       <Link href={`/booking?package=${packageData._id}`}>
-        <button className="mt-8 w-full rounded-xl bg-[#F97316] py-3.5 font-semibold text-white transition duration-300 hover:bg-[#0B5C56]">
+   
+        <button 
+        className="mt-8 w-full rounded-xl bg-[#F97316] py-3.5 font-semibold text-white transition duration-300 hover:bg-[#0B5C56]">
           Book Now
         </button>
       </Link>

@@ -1,119 +1,125 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
-import { BookingFormData } from "@/types/booking";
+import {
+  BookingFormData,
+  BookingFormErrors,
+} from "@/types/booking";
 import { validateBookingForm } from "@/utils/bookingValidation";
-import { BookingFormErrors } from "@/types/booking";
+import { createBooking } from "@/services/bookingService";
 
-const initialFormData: BookingFormData = {
-  package: "",
+interface BookingFormProps {
+  packageId: string;
+}
+
+export default function BookingForm({
+  packageId,
+}: BookingFormProps) {
+   console.log("Received packageId:", packageId);
+  const [formData, setFormData] = useState<BookingFormData>({
+  package: packageId,
 
   customerDetails: {
     fullName: "",
     email: "",
     phone: "",
+    whatsappNumber: "",
+    city: "",
     cnic: "",
   },
 
+  travelDate: "",
   adults: 1,
   children: 0,
-
-  travelDate: "",
-
   specialRequests: "",
-};
+});
 
-export default function BookingForm() {
-  const [formData, setFormData] =
-  useState<BookingFormData>(initialFormData);
+  const [errors, setErrors] =
+    useState<BookingFormErrors>({});
 
-const [errors, setErrors] =
-  useState<BookingFormErrors>({});
+  const handleChange = (
+    e: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
 
- const handleChange = (
-  e: ChangeEvent<
-    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-  >
+    if (
+      ["fullName", "email", "phone", "whatsappNumber", "cnic", "city"].includes(
+        name
+      )
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        customerDetails: {
+          ...prev.customerDetails,
+          [name]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]:
+          name === "adults" || name === "children"
+            ? Number(value)
+            : value,
+      }));
+    }
+  };
+const handleSubmit = async (
+  e: FormEvent<HTMLFormElement>
 ) => {
-  const { name, value } = e.target;
+  e.preventDefault();
+    console.log("Submit clicked");
 
-  if (["fullName", "email", "phone", "cnic"].includes(name)) {
-    setFormData((prev) => ({
-      ...prev,
-      customerDetails: {
-        ...prev.customerDetails,
-        [name]: value,
-      },
-    }));
-  } else {
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "adults" || name === "children"
-          ? Number(value)
-          : value,
-    }));
+  const validationErrors = validateBookingForm(formData);
+  console.log("Form Data:", formData);
+console.log("Validation Errors:", validationErrors);
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+  
+
+  try {
+    const response = await createBooking(formData);
+
+    console.log(response);
+
+    alert("Booking submitted successfully!");
+
+  } catch (error:any) {
+ console.error(error);
+  console.log(error.response?.data);
+  console.table(error.response?.data?.errors);
+
+
+    alert("Failed to submit booking.");
   }
 };
+  
 
- const handleSubmit = async (
-    e: FormEvent<HTMLFormElement>
-) => {
+   
+const today = new Date().toISOString().split("T")[0];
 
-    e.preventDefault();
-
-    const validationErrors =
-        validateBookingForm(formData);
-
-    if (Object.keys(validationErrors).length > 0) {
-
-        setErrors(validationErrors);
-
-        return;
-    }
-
-    console.log(formData);
-
-};
-
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+const tomorrowDate = tomorrow.toISOString().split("T")[0];
   return (
-    <section className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg">
-      <h2 className="text-3xl font-bold mb-8 text-center">
+    <section className="max-w-4xl mx-auto rounded-2xl bg-white p-8 shadow-lg">
+      <h2 className="mb-8 text-center text-3xl font-bold">
         Book Your Tour
       </h2>
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2"
       >
-        {/* Package */}
-        <div>
-          <label className="block mb-2 font-medium">
-            Package
-          </label>
-
-          <select
-            name="package"
-            value={formData.package}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-          >
-            <option value="">Select Package</option>
-            <option value="1">Hunza Tour</option>
-            <option value="2">Skardu Tour</option>
-            <option value="3">Swat Tour</option>
-          </select>
-          {errors.package && (
-  <p className="text-red-500 text-sm mt-1">
-    {errors.package}
-  </p>
-)}
-        </div>
-
         {/* Full Name */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Full Name
           </label>
 
@@ -122,20 +128,21 @@ const [errors, setErrors] =
             name="fullName"
             value={formData.customerDetails.fullName}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
             placeholder="Enter Full Name"
-           
+            className="w-full rounded-lg border p-3"
           />
-           {errors.fullName && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.fullName}
-</p>)}
+
+          {errors.fullName && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.fullName}
+            </p>
+          )}
         </div>
 
         {/* Email */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Email
           </label>
 
@@ -144,20 +151,21 @@ const [errors, setErrors] =
             name="email"
             value={formData.customerDetails.email}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
             placeholder="Enter Email"
-            
+            className="w-full rounded-lg border p-3"
           />
+
           {errors.email && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.email}
-</p>)}
+            <p className="mt-1 text-sm text-red-500">
+              {errors.email}
+            </p>
+          )}
         </div>
 
         {/* Phone */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Phone
           </label>
 
@@ -166,22 +174,44 @@ const [errors, setErrors] =
             name="phone"
             value={formData.customerDetails.phone}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
             placeholder="03XXXXXXXXX"
-          
+            className="w-full rounded-lg border p-3"
           />
-            {errors.phone && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.phone}
-</p>)}
+
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.phone}
+            </p>
+          )}
         </div>
 
-       
+        {/* WhatsApp */}
+
+        <div>
+          <label className="mb-2 block font-medium">
+            WhatsApp
+          </label>
+
+          <input
+            type="text"
+            name="whatsappNumber"
+            value={formData.customerDetails.whatsappNumber}
+            onChange={handleChange}
+            placeholder="03XXXXXXXXX"
+            className="w-full rounded-lg border p-3"
+          />
+
+          {errors.whatsappNumber && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.whatsappNumber}
+            </p>
+          )}
+        </div>
 
         {/* CNIC */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             CNIC / Passport
           </label>
 
@@ -190,66 +220,89 @@ const [errors, setErrors] =
             name="cnic"
             value={formData.customerDetails.cnic}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
             placeholder="35202-XXXXXXX-X"
-            
+            className="w-full rounded-lg border p-3"
           />
-          {errors.cnic && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.cnic}
-</p>)}
-        </div>
 
-       
+          {errors.cnic && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.cnic}
+            </p>
+          )}
+        </div>
+        {/* City */}
+
+<div>
+  <label className="block mb-2 font-medium">
+    City
+  </label>
+
+  <input
+    type="text"
+    name="city"
+    value={formData.customerDetails.city}
+    onChange={handleChange}
+    className="w-full border rounded-lg p-3"
+    placeholder="Enter City"
+  />
+
+  {errors.city && (
+    <p className="text-red-500 text-sm mt-1">
+      {errors.city}
+    </p>
+  )}
+</div>
 
         {/* Adults */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Adults
           </label>
 
           <input
             type="number"
             name="adults"
+            min={1}
             value={formData.adults}
             onChange={handleChange}
-            min={1}
-            className="w-full border rounded-lg p-3"
-           
+            className="w-full rounded-lg border p-3"
           />
-           {errors.adults && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.adults}
-</p>)}
+
+          {errors.adults && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.adults}
+            </p>
+          )}
         </div>
 
         {/* Children */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Children
           </label>
 
           <input
             type="number"
             name="children"
+            min={0}
             value={formData.children}
             onChange={handleChange}
-            min={0}
-            className="w-full border rounded-lg p-3"
-           
+            className="w-full rounded-lg border p-3"
           />
-           {errors.children && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.children}
-</p>)}
+
+          {errors.children && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.children}
+            </p>
+          )}
         </div>
 
         {/* Travel Date */}
 
         <div>
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Travel Date
           </label>
 
@@ -258,41 +311,47 @@ const [errors, setErrors] =
             name="travelDate"
             value={formData.travelDate}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-           
+             min={today}
+  max={tomorrowDate}
+            className="w-full rounded-lg border p-3"
           />
-           {errors.travelDate && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.travelDate}
-</p>)}
+
+          {errors.travelDate && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.travelDate}
+            </p>
+          )}
         </div>
 
         {/* Special Requests */}
 
         <div className="md:col-span-2">
-          <label className="block mb-2 font-medium">
+          <label className="mb-2 block font-medium">
             Special Requests
           </label>
 
           <textarea
             name="specialRequests"
+            rows={5}
             value={formData.specialRequests}
             onChange={handleChange}
-            rows={5}
-            className="w-full border rounded-lg p-3"
             placeholder="Write your special requests..."
-           
+            className="w-full rounded-lg border p-3"
           />
-           {errors.specialRequests && (
-<p className="text-red-500 text-sm mt-1">
-    {errors.specialRequests}
-</p>)}
+
+          {errors.specialRequests && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.specialRequests}
+            </p>
+          )}
+          
         </div>
+       
 
         <div className="md:col-span-2">
           <button
             type="submit"
-            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-lg transition"
+            className="w-full rounded-lg bg-teal-700 py-3 font-semibold text-white transition hover:bg-teal-800"
           >
             Book Now
           </button>

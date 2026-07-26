@@ -6,32 +6,17 @@ export interface BookingFormData {
     fullName: string;
     email: string;
     phone: string;
+    whatsappNumber: string;
+    city: string;
     cnic: string;
   };
 
+  travelDate: string;
   adults: number;
   children: number;
-  travelDate: string;
+  totalAmount?: number;
   specialRequests: string;
 }
-
-const initialFormData: BookingFormData = {
-  package: "",
-
-  customerDetails: {
-    fullName: "",
-    email: "",
-    phone: "",
-    cnic: "",
-  },
-
-  adults: 1,
-  children: 0,
-
-  travelDate: "",
-
-  specialRequests: "",
-};
 
 /**
  * Validation errors for the booking form.
@@ -43,9 +28,11 @@ export interface BookingFormErrors {
   fullName?: string;
   email?: string;
   phone?: string;
+  whatsappNumber?: string;
+  city?: string;
   cnic?: string;
+  travelDate?: string;
   adults?: string;
   children?: string;
-  travelDate?: string;
   specialRequests?: string;
 }
