@@ -18,7 +18,11 @@ interface Props {
 }
 
 export default function PackageListingCard({ tour }: Props) {
-  const imageUrl = tour.images?.[0] || '/images/placeholder.jpg';
+  // Logic to filter out video URLs and pick the first valid image
+  const isVideo = (url: string) => /\.(mp4|webm|ogg|mov)$/i.test(url) || url.includes('/video/upload/');
+  const firstImage = tour.images?.find((url) => !isVideo(url));
+  const imageUrl = firstImage || '/images/placeholder.jpg';
+
   const discount = tour.discountPrice ? Math.round(((tour.price - tour.discountPrice) / tour.price) * 100) : 0;
   const displayPrice = tour.discountPrice || tour.price;
 
@@ -33,6 +37,7 @@ export default function PackageListingCard({ tour }: Props) {
             src={imageUrl}
             alt={tour.title}
             fill
+            unoptimized={imageUrl.startsWith('http')}
             className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />
 
