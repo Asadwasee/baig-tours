@@ -1,3 +1,6 @@
+'use client';
+
+import { usePackages } from '@/hooks/usePackages';
 import ContactSection from "@/components/home/Contact/ContactSection";
 import FeaturedPackages from "@/components/home/FeaturedPackages/FeaturedPackages";
 import Gallery from "@/components/home/Gallery/Gallery";
@@ -12,12 +15,26 @@ import WhyChooseUs from "@/components/home/WhyChooseUs/WhyChooseUs";
 import Image from "next/image";
 
 export default function Home() {
+  const { packages: featuredPackages, loading: featuredLoading } = usePackages({
+    featured: true,
+    limit: 6
+  });
+
+  // Fetch upcoming tours
+  const { packages: upcomingPackages, loading: upcomingLoading } = usePackages({
+    upcoming: true,
+    limit: 3
+  });
   return (
    <>
    <Hero />
    <SearchSection />
-   <FeaturedPackages />
-   <UpcomingTours />
+   <FeaturedPackages
+   packages = {featuredPackages}
+   loading={featuredLoading} />
+   <UpcomingTours
+   tours={upcomingPackages}
+   loading={upcomingLoading} />
    <PopularDestinations />
    <WhyChooseUs />
    <Testimonials />

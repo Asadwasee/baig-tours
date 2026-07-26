@@ -1,18 +1,38 @@
-export interface TourPackage {
-  id: number;
+// types/package.ts
+export interface Package {
+  _id: string;
   title: string;
-  destination: string;
+  slug: string;
   category: string;
-  image: string;
-  duration: string;
-  departureDate: string;
+  destination: string;
   price: number;
-
-  // Optional (for API integration later)
-  originalPrice?: number;
   discountPrice?: number;
-  availableSeats?: number;
-  rating?: number;
-  totalReviews?: number;
-  isFeatured?: boolean;
+  duration: string;
+  availableSeats: number;
+  departureDate: string;
+  returnDate: string;
+  pickupLocation: string;
+  hotelInfo?: string;
+  transportDetails?: string;
+  mealsIncluded: boolean;
+  description: string;
+  highlights: string[];
+  includedServices: string[];
+  excludedServices: string[];
+  itinerary: Array<{
+    day: number;
+    title: string;
+    description: string;
+  }>;
+  faqs: Array<{
+    question: string;
+    answer: string;
+  }>;
+  images: string[];
+  videos: string[];
+  promoVideo?: string;
+  isFeatured: boolean;
+  isUpcoming: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

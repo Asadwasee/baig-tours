@@ -1,102 +1,88 @@
-"use client";
+// components/package-details/FAQSection.tsx
+'use client';
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
+import { Package } from "@/types/package";
 
-const faqs = [
-  {
-    question: "What is included in this package?",
-    answer:
-      "Accommodation, transportation, breakfast & dinner, sightseeing and professional tour guide.",
-  },
-  {
-    question: "Can I cancel my booking?",
-    answer:
-      "Yes. Cancellation policies depend on the booking date and package terms.",
-  },
-  {
-    question: "Is this tour suitable for families?",
-    answer:
-      "Yes. This package is designed for families, couples and groups.",
-  },
-  {
-    question: "How do I reserve my seat?",
-    answer:
-      "Simply click Book Now or contact us through WhatsApp.",
-  },
-  {
-    question: "Are meals included?",
-    answer:
-      "Breakfast and dinner are included throughout the tour.",
-  },
-];
+interface FAQSectionProps {
+  faqs: Package['faqs'];
+}
 
-export default function FAQSection() {
+export default function FAQSection({ faqs }: FAQSectionProps) {
   const [open, setOpen] = useState<number | null>(0);
 
+  if (!faqs || faqs.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="bg-[#F8FAFC] py-16">
-
-      <div className="container-custom max-w-5xl">
-
-        <div className="mb-12 text-center">
-
+    <section className="bg-[#F8FAFC] py-20">
+      <div className="container-custom">
+        {/* Heading */}
+        <div className="mx-auto mb-14 max-w-3xl text-center">
           <span className="font-semibold uppercase tracking-wider text-[#F97316]">
-            FAQs
+            Need Help?
           </span>
-
           <h2 className="mt-3 font-[var(--font-poppins)] text-4xl font-bold text-[#1E293B]">
             Frequently Asked Questions
           </h2>
-
+          <p className="mt-5 leading-8 text-gray-600">
+            Find answers to the most common questions travelers ask before
+            booking their adventure with Baig Tours.
+          </p>
         </div>
 
-        <div className="space-y-5">
-
-          {faqs.map((faq, index) => (
-
-            <div
-              key={index}
-              className="overflow-hidden rounded-2xl bg-white shadow-md"
-            >
-
-              <button
-                onClick={() =>
-                  setOpen(open === index ? null : index)
-                }
-                className="flex w-full items-center justify-between p-6 text-left"
+        {/* FAQ */}
+        <div className="mx-auto max-w-4xl space-y-4">
+          {faqs.map((faq, index) => {
+            const isOpen = open === index;
+            return (
+              <div
+                key={index}
+                className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                  isOpen
+                    ? "border-[#0F766E]/30 bg-white shadow-md"
+                    : "border-gray-200 bg-white shadow-sm hover:border-[#0F766E]/20 hover:shadow-md"
+                }`}
               >
-
-                <span className="font-semibold text-[#1E293B]">
-                  {faq.question}
-                </span>
-
-                <ChevronDown
-                  className={`transition ${
-                    open === index ? "rotate-180" : ""
+                <button
+                  onClick={() => setOpen(isOpen ? null : index)}
+                  className="flex w-full items-center justify-between px-6 py-5 text-left"
+                >
+                  <span
+                    className={`pr-6 text-lg font-semibold transition-colors ${
+                      isOpen ? "text-[#0F766E]" : "text-[#1E293B]"
+                    }`}
+                  >
+                    {faq.question}
+                  </span>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
+                      isOpen
+                        ? "bg-[#F97316] text-white"
+                        : "bg-[#F8FAFC] text-[#0F766E]"
+                    }`}
+                  >
+                    {isOpen ? <Minus size={18} /> : <Plus size={18} />}
+                  </div>
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ${
+                    isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   }`}
-                />
-
-              </button>
-
-              {open === index && (
-
-                <div className="border-t border-gray-100 px-6 py-5 text-gray-600 leading-7">
-
-                  {faq.answer}
-
+                >
+                  <div className="overflow-hidden">
+                    <div className="border-t border-gray-100 px-6 pb-6 pt-5 leading-8 text-gray-600">
+                      {faq.answer}
+                    </div>
+                  </div>
                 </div>
-
-              )}
-
-            </div>
-
-          ))}
-
+              </div>
+            );
+          })}
         </div>
-
       </div>
-
     </section>
   );
 }

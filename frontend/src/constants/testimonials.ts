@@ -7,7 +7,7 @@ export const testimonials = [
     rating: 5,
     review:
       "Our Hunza trip was perfectly organized. Hotels, transportation, and tour guides exceeded our expectations. Highly recommended!",
-    image: "/assets/testimonials/user1.jpg",
+    image: "/assets/images/testimonials/user1.jpg",
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ export const testimonials = [
     rating: 5,
     review:
       "Baig Tours handled everything professionally. From visa guidance to accommodation, the experience was stress-free.",
-    image: "/assets/testimonials/user2.jpg",
+    image: "/assets/images/testimonials/user2.jpg",
   },
   {
     id: 3,
@@ -27,6 +27,6 @@ export const testimonials = [
     rating: 5,
     review:
       "Amazing memories with excellent customer service. The itinerary was well planned and every destination was breathtaking.",
-    image: "/assets/testimonials/user3.jpg",
+    image: "/assets/images/testimonials/user3.jpg",
   },
 ];

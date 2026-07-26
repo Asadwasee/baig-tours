@@ -3,7 +3,7 @@ import HeroSlider from "./HeroSlider";
 
 export default function Hero() {
   return (
-    <section className="relative h-[85vh] overflow-hidden">
+    <section className="relative overflow-hidden">
       <HeroSlider />
       <HeroContent />
     </section>
