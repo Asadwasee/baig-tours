@@ -23,15 +23,22 @@ export function useGallery(options: UseGalleryOptions = {}) {
     setLoading(true);
     setError(null);
     try {
+      console.log('🔄 Fetching gallery with:', { category, mediaType, limit });
+      
       const [mediaData, statsData] = await Promise.all([
         getGalleryMedia({ category, mediaType, limit }),
         getGalleryStats()
       ]);
-      setMedia(mediaData);
+      
+      console.log('✅ Gallery media received:', mediaData);
+      console.log('✅ Gallery stats received:', statsData);
+      
+      setMedia(Array.isArray(mediaData) ? mediaData : []);
       setStats(statsData);
     } catch (err: any) {
+      console.error('❌ Error fetching gallery:', err);
       setError(err.message || 'Failed to fetch gallery');
-      console.error('Error fetching gallery:', err);
+      setMedia([]);
     } finally {
       setLoading(false);
     }
@@ -41,7 +48,7 @@ export function useGallery(options: UseGalleryOptions = {}) {
     if (autoFetch) {
       fetchGallery();
     }
-  }, [category, mediaType]);
+  }, [category, mediaType, limit]);
 
   return { media, stats, loading, error, refetch: fetchGallery };
 }
