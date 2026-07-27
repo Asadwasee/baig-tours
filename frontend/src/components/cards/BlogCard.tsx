@@ -33,7 +33,7 @@ export default function BlogCard({ blog }: BlogCardProps) {
         </p>
 
         <Link
-          href={`/blogs/${blog.slug}`}
+           href={`/blogs/${blog.slug}`}
           className="inline-block bg-teal-700 hover:bg-teal-800 text-white px-5 py-2 rounded-lg"
         >
           Read More →
