@@ -1,58 +1,53 @@
-import axios from "axios";
-import { Blog } from "@/types/blog";
+// src/services/blogService.ts
+import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = 
+  process.env.NEXT_PUBLIC_API_URL || 
+  process.env.NEXT_PUBLIC_BACKEND_URL || 
+  'http://localhost:5000';
 
-
-interface BlogsResponse {
-  success: boolean;
-  message: string;
-  data: Blog[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
-}
-
-
-// Blogs list
-export const getBlogs = async (): Promise<BlogsResponse> => {
-
-  const res = await axios.get<BlogsResponse>(
-    `${API_URL}/api/blogs/get`
-  );
-
-  return res.data;
-};
-
-
-// Single blog detail
-export const getBlogBySlug = async (
-  slug: string
-): Promise<Blog> => {
-
-  const res = await axios.get(
-    `${API_URL}/api/blogs/slug/${slug}`
-  );
-
-  return res.data.data;
-};
-
+// 1. Get Featured Blogs
 export const getFeaturedBlogs = async () => {
-
-  const res = await axios.get(
-    `${API_URL}/api/blogs/featured?limit=6`
-  );
-
-  return res.data.data;
+  try {
+    const res = await axios.get(`${API_URL}/api/blogs/featured?limit=6`);
+    return res.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching featured blogs:', error);
+    return [];
+  }
 };
 
-export const getBlogCategories = async () => {
-  const res = await axios.get(
-    `${API_URL}/api/blogs/categories`
-  );
+// 2. Get All Blogs
+export const getBlogs = async (page = 1, limit = 10) => {
+  try {
+    const res = await axios.get(`${API_URL}/api/blogs/get?page=${page}&limit=${limit}`);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    return { data: [], pagination: {} };
+  }
+};
 
-  return res.data.data;
+export const getAllBlogs = getBlogs;
+
+// 3. Get Blog Categories
+export const getBlogCategories = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/api/blogs/categories`);
+    return res.data?.data || [];
+  } catch (error) {
+    console.error('Error fetching blog categories:', error);
+    return [];
+  }
+};
+
+// 4. Get Single Blog By Slug
+export const getBlogBySlug = async (slug: string) => {
+  try {
+    const res = await axios.get(`${API_URL}/api/blogs/slug/${slug}`);
+    return res.data?.data || null;
+  } catch (error) {
+    console.error(`Error fetching blog [${slug}]:`, error);
+    return null;
+  }
 };
