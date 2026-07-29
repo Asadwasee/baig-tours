@@ -62,7 +62,10 @@ export const createCategory = async (req, res) => {
 // GET ALL CATEGORIES WITH BLOG COUNTS
 export const getAllCategories = async (req, res) => {
     try {
-        const categories = await Category.find({ isActive: true })
+        const { includeInactive } = req.query;
+        const query = includeInactive === 'true' ? {} : { isActive: true };
+
+        const categories = await Category.find(query)
             .sort({ order: 1, createdAt: -1 });
 
         // Get blog count for each category
@@ -74,6 +77,7 @@ export const getAllCategories = async (req, res) => {
                 });
 
                 return {
+                    _id: category._id,
                     id: category._id,
                     name: category.name,
                     slug: category.slug,

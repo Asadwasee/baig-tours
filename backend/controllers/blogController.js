@@ -125,16 +125,20 @@ export const updateBlog = async (req, res) => {
             }
         }
 
+        if (updateData.title && !updateData.slug) {
+            updateData.slug = updateData.title
+                .toLowerCase()
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .replace(/\s+/g, '-');
+        }
+
         if (updateData.slug && updateData.slug !== existingBlog.slug) {
             const slugExists = await Blog.findOne({
                 slug: updateData.slug,
                 _id: { $ne: id }
             });
             if (slugExists) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Slug already exists'
-                });
+                updateData.slug = `${updateData.slug}-${Date.now().toString().slice(-4)}`;
             }
         }
 
@@ -198,12 +202,16 @@ export const deleteBlog = async (req, res) => {
 // @access  Public
 export const getAllBlogs = async (req, res) => {  
     try {
-        const { category, page = 1, limit = 10 } = req.query;
-        const query = { isPublished: true };
+        const { category, includeDrafts, page = 1, limit = 50 } = req.query;
+        const query = {};
+
+        if (includeDrafts !== 'true') {
+            query.isPublished = true;
+        }
 
         if (category) query.category = category;
 
-        const skip = (page - 1) * limit;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
         const blogs = await Blog.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
