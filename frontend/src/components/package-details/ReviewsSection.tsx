@@ -5,7 +5,7 @@ import ReviewForm from "./ReviewForm";
 const reviews = [
   {
     id: 1,
-    name: "Ahmed Khan",
+    name: "Sara Khan",
     city: "Islamabad",
     image: "/assets/images/testimonials/user1.jpg",
     rating: 5,
@@ -14,7 +14,7 @@ const reviews = [
   },
   {
     id: 2,
-    name: "Fatima Ali",
+    name: "Usama Ali",
     city: "Lahore",
     image: "/assets/images/testimonials/user2.jpg",
     rating: 5,
@@ -23,7 +23,7 @@ const reviews = [
   },
   {
     id: 3,
-    name: "Usman Tariq",
+    name: "Fatima Tariq",
     city: "Karachi",
     image: "/assets/images/testimonials/user3.jpg",
     rating: 4,
