@@ -2,14 +2,11 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { Star } from "lucide-react";
-interface Review {
-  name: string;
-  city: string;
-  rating: number;
-  review: string;
-}
+import { createReview } from "@/services/reviewServices";
+
 interface ReviewFormProps {
-  onAddReview: (review: Review) => void;
+  packageId: string;
+   tourName: string;
 }
 
 interface ReviewFormData {
@@ -27,9 +24,12 @@ const initialForm: ReviewFormData = {
 };
 
 export default function ReviewForm({
-  onAddReview,
-}: ReviewFormProps) {
+  packageId,
+  tourName,
+
+}: ReviewFormProps){
   const [formData, setFormData] = useState(initialForm);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -42,17 +42,28 @@ export default function ReviewForm({
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+  setLoading(true);
 
-  onAddReview({
-    name: formData.name,
-    city: "Pakistan", // Temporary
-    rating: formData.rating,
-    review: formData.review,
-  });
+  try {
+    await createReview({
+      customerName: formData.name,
+      customerEmail: formData.email,
+      tourName,
+      packageId,
+      rating: formData.rating,
+      review: formData.review,
+    });
 
-  setFormData(initialForm);
+    alert("Review submitted successfully!");
+    setFormData(initialForm);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to submit review.");
+  } finally {
+    setLoading(false);
+  }
 };
   return (
     <section className="rounded-3xl bg-[#F8FAFC] p-8 shadow-md">
@@ -146,11 +157,12 @@ export default function ReviewForm({
         />
 
         <button
-          type="submit"
-          className="rounded-xl bg-[#F97316] px-8 py-3 font-semibold text-white transition hover:bg-[#0F766E]"
-        >
-          Submit Review
-        </button>
+  type="submit"
+  disabled={loading}
+  className="rounded-xl bg-[#F97316] px-8 py-3 font-semibold text-white transition hover:bg-[#0F766E] disabled:opacity-50"
+>
+  {loading ? "Submitting..." : "Submit Review"}
+</button>
 
       </form>
 

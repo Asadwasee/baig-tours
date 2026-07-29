@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Star } from "lucide-react";
+import ReviewForm from "./ReviewForm";
 
 const reviews = [
   {
@@ -32,10 +33,14 @@ const reviews = [
 ];
 
 interface ReviewsSectionProps {
-  packageId?: string;
+  packageId: string;
+   tourName: string;
+ 
 }
-
-export default function ReviewsSection({ packageId }: ReviewsSectionProps) {
+export default function ReviewsSection({
+  packageId,
+ tourName,
+}: ReviewsSectionProps) {
   return (
     <section className="bg-[#F8FAFC] py-20">
       <div className="container-custom">
@@ -179,6 +184,15 @@ export default function ReviewsSection({ packageId }: ReviewsSectionProps) {
           ))}
 
         </div>
+        {/* Review Form */}
+
+<div className="mt-12">
+  <ReviewForm
+    packageId={packageId}
+  tourName={tourName}
+   
+  />
+</div>
 
       </div>
     </section>
