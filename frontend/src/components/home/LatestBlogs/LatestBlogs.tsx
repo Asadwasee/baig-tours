@@ -1,8 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import BlogCard from "./BlogCard";
-import { blogs } from "@/constants/blogs";
+import { useBlogs } from "@/hooks/useBlogs";
 
 export default function LatestBlogs() {
+
+  const { blogs, loading, error } = useBlogs();
+  if (loading) {
+  return (
+    <section className="section-padding bg-[#F8FAFC]">
+      <div className="container-custom">
+        <div className="py-20 text-center">
+          Loading blogs...
+        </div>
+      </div>
+    </section>
+  );
+}
+
+if (error) {
+  return (
+    <section className="section-padding bg-[#F8FAFC]">
+      <div className="container-custom">
+        <div className="py-20 text-center text-red-500">
+          {error}
+        </div>
+      </div>
+    </section>
+  );
+}
   return (
     <section className="section-padding bg-[#F8FAFC]">
       <div className="container-custom px-4 sm:px-6 lg:px-8">
@@ -29,7 +56,7 @@ export default function LatestBlogs() {
         <div className="grid gap-4 xs:gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((blog) => (
             <BlogCard
-              key={blog.id}
+              key={blog._id}
               blog={blog}
             />
           ))}

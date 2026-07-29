@@ -1,8 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import DestinationCard from "./DestinationCard";
-import { destinations } from "@/constants/destinations";
+import { usePopularDestinations } from "@/hooks/usePopularDestinations";
 
 export default function PopularDestinations() {
+  const {
+  destinations,
+  loading,
+  error,
+} = usePopularDestinations();
+
+if (loading) {
+  return (
+    <section className="section-padding bg-[#F8FAFC]">
+      <div className="container-custom">
+        <div className="text-center py-20">
+          Loading destinations...
+        </div>
+      </div>
+    </section>
+  );
+}
+
+if (error) {
+  return (
+    <section className="section-padding bg-[#F8FAFC]">
+      <div className="container-custom">
+        <div className="text-center py-20 text-red-500">
+          {error}
+        </div>
+      </div>
+    </section>
+  );
+}
   return (
     <section className="section-padding bg-[#F8FAFC]">
       <div className="container-custom px-4 sm:px-6 lg:px-8">

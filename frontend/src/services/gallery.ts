@@ -1,5 +1,22 @@
 import { apiFetch } from "./api";
-import { GalleryMedia, GalleryStats } from "@/types/gallery";
+
+export interface GalleryMedia {
+  _id: string;
+  title: string;
+  description?: string;
+  mediaType: 'image' | 'video';
+  mediaUrl: string;
+  category: 'domestic' | 'international' | 'customer-memories';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GalleryStats {
+  domestic: number;
+  international: number;
+  customerMemories: number;
+}
 
 export type { GalleryMedia, GalleryStats };
 
@@ -17,15 +34,69 @@ export async function getGalleryMedia(params?: {
   if (params?.limit) queryParams.append('limit', String(params.limit));
   
   const query = queryParams.toString();
-  return apiFetch<GalleryMedia[]>(`/gallery/media/getall${query ? `?${query}` : ''}`);
+  const endpoint = `/gallery/media/getall${query ? `?${query}` : ''}`;
+  
+  console.log('🔄 Fetching gallery from:', endpoint);
+  
+  // apiFetch will handle the { success, data } wrapper automatically
+  const response = await apiFetch<GalleryMedia[]>(endpoint);
+  
+  console.log('📦 Gallery response after apiFetch:', response);
+  
+  // If response is already an array, return it
+  if (Array.isArray(response)) {
+    return response;
+  }
+  
+  // If response has a data property (just in case)
+  if (response && (response as any).data && Array.isArray((response as any).data)) {
+    return (response as any).data;
+  }
+  
+  // If response is empty or invalid, return empty array
+  console.warn('⚠️ Unexpected gallery response format:', response);
+  return [];
 }
 
 // Get gallery by category
 export async function getGalleryByCategory(category: string): Promise<GalleryMedia[]> {
-  return apiFetch<GalleryMedia[]>(`/gallery/media/category/${category}`);
+  const response = await apiFetch<GalleryMedia[]>(`/gallery/media/category/${category}`);
+  
+  if (Array.isArray(response)) return response;
+  if (response && (response as any).data && Array.isArray((response as any).data)) {
+    return (response as any).data;
+  }
+  return [];
 }
 
 // Get media stats (counts per category)
 export async function getGalleryStats(): Promise<GalleryStats> {
-  return apiFetch<GalleryStats>('/gallery/media/media_stats');
+  try {
+    const response = await apiFetch<any>('/gallery/media/media_stats');
+    console.log('📊 Gallery stats response:', response);
+    
+    // If response has the stats directly
+    if (response && typeof response === 'object') {
+      if ('domestic' in response || 'international' in response || 'customerMemories' in response) {
+        return {
+          domestic: response.domestic || 0,
+          international: response.international || 0,
+          customerMemories: response.customerMemories || 0
+        };
+      }
+      // If stats are inside data
+      if (response.data) {
+        return {
+          domestic: response.data.domestic || 0,
+          international: response.data.international || 0,
+          customerMemories: response.data.customerMemories || 0
+        };
+      }
+    }
+    
+    return { domestic: 0, international: 0, customerMemories: 0 };
+  } catch (error) {
+    console.error('Error fetching gallery stats:', error);
+    return { domestic: 0, international: 0, customerMemories: 0 };
+  }
 }
