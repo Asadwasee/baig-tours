@@ -14,7 +14,7 @@ const reviews = [
   },
   {
     id: 2,
-    name: "Usama Ali",
+    name: "Usama Awan",
     city: "Lahore",
     image: "/assets/images/testimonials/user2.jpg",
     rating: 5,
