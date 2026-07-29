@@ -6,7 +6,8 @@ interface DestinationCardProps {
   destination: {
     id: number;
     name: string;
-    region: string;
+    region?: string;
+    country?: string;
     tours: number;
     image: string;
   };
@@ -33,7 +34,7 @@ export default function DestinationCard({
 
         {/* Region Badge */}
         <span className="absolute left-3 top-3 xs:left-4 xs:top-4 rounded-full bg-[#F97316] px-2.5 py-1 xs:px-3 xs:py-1 text-[10px] xs:text-xs font-semibold text-white">
-          {destination.region}
+          {destination.region || destination.country}
         </span>
 
         {/* Text */}

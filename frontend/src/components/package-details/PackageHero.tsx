@@ -65,11 +65,11 @@ export default function PackageHero({ packageData }: PackageHeroProps) {
               </div>
               <div className="flex items-center gap-2">
                 <CalendarDays size={18} />
-                <span>{new Date(packageData.departureDate).toLocaleDateString()}</span>
+                <span>{packageData.departureDate ? new Date(packageData.departureDate).toLocaleDateString() : 'Upcoming'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users size={18} />
-                <span>{packageData.availableSeats} Seats Left</span>
+                <span>{packageData.availableSeats ?? 'Limited'} Seats Left</span>
               </div>
             </div>
           </div>

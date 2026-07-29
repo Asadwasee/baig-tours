@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Container from "./Container";
 import { QUICK_LINKS, TOUR_CATEGORIES } from "@/constants/footer";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa6";
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
   return (
     <footer className="mt-20 overflow-hidden rounded-t-3xl border-t border-[#0F766E] bg-[#0B5C56] text-white">
       <Container>

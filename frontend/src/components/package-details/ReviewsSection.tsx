@@ -31,7 +31,11 @@ const reviews = [
   },
 ];
 
-export default function ReviewsSection() {
+interface ReviewsSectionProps {
+  packageId?: string;
+}
+
+export default function ReviewsSection({ packageId }: ReviewsSectionProps) {
   return (
     <section className="bg-[#F8FAFC] py-20">
       <div className="container-custom">

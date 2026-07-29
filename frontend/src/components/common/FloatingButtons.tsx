@@ -1,8 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { FaWhatsapp, FaPhoneAlt } from "react-icons/fa";
 
 export default function FloatingButtons() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
 

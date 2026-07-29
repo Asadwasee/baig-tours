@@ -59,7 +59,7 @@ export default function PackageCard({ tour }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <CalendarDays size={17} className="shrink-0 text-[#0F766E]" />
-            <span>{new Date(tour.departureDate).toLocaleDateString()}</span>
+            <span>{tour.departureDate ? new Date(tour.departureDate).toLocaleDateString() : "Upcoming Departure"}</span>
           </div>
         </div>
 

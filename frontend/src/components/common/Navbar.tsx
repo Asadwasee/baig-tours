@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 import Logo from "./Logo";
 import NavLinks from "./NavLinks";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   // Prevent body scrolling when menu is open
   useEffect(() => {

@@ -22,7 +22,7 @@ export function usePackage(id: string | undefined) {
       setError(null);
       try {
         console.log('🔄 Fetching package with ID:', id);
-        const data = await getPackageById(id);
+        const data = await getPackageById(id as string);
         console.log('✅ Package data:', data);
         console.log('✅ Price:', data?.price);
         console.log('✅ Title:', data?.title);

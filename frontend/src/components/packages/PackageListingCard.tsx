@@ -85,7 +85,7 @@ export default function PackageListingCard({ tour }: Props) {
                 <CalendarDays size={15} className="xs:w-[17px] xs:h-[17px] text-[#0F766E]" />
                 <div>
                   <p className="text-[10px] xs:text-[11px] uppercase tracking-wide text-gray-400">Departure</p>
-                  <p className="text-xs xs:text-sm font-medium">{new Date(tour.departureDate).toLocaleDateString()}</p>
+                  <p className="text-xs xs:text-sm font-medium">{tour.departureDate ? new Date(tour.departureDate).toLocaleDateString() : 'Upcoming'}</p>
                 </div>
               </div>
 

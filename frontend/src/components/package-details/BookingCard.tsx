@@ -51,11 +51,11 @@ export default function BookingCard({ packageData }: BookingCardProps) {
 
       {/* Tour Info */}
       <div className="mt-6 space-y-4">
-        <Info icon={<Clock3 size={18} />} label="Duration" value={packageData.duration} />
-        <Info icon={<CalendarDays size={18} />} label="Departure" value={new Date(packageData.departureDate).toLocaleDateString()} />
-        <Info icon={<CalendarDays size={18} />} label="Return" value={new Date(packageData.returnDate).toLocaleDateString()} />
-        <Info icon={<Users size={18} />} label="Seats" value={`${packageData.availableSeats} Available`} />
-        <Info icon={<MapPin size={18} />} label="Pickup" value={packageData.pickupLocation} />
+        <Info icon={<Clock3 size={18} />} label="Duration" value={packageData.duration || 'N/A'} />
+        <Info icon={<CalendarDays size={18} />} label="Departure" value={packageData.departureDate ? new Date(packageData.departureDate).toLocaleDateString() : 'Flexible'} />
+        <Info icon={<CalendarDays size={18} />} label="Return" value={packageData.returnDate ? new Date(packageData.returnDate).toLocaleDateString() : 'Flexible'} />
+        <Info icon={<Users size={18} />} label="Seats" value={`${packageData.availableSeats ?? 'Limited'} Available`} />
+        <Info icon={<MapPin size={18} />} label="Pickup" value={packageData.pickupLocation || 'Islamabad'} />
       </div>
 
       {/* Buttons */}

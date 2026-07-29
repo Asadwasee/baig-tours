@@ -5,12 +5,20 @@ import Link from "next/link";
 import { usePackages } from '@/hooks/usePackages';
 import UpcomingTourCard from "./UpcomingTourCard";
 
-export default function UpcomingTours() {
+interface UpcomingToursProps {
+  tours?: any[];
+  loading?: boolean;
+}
+
+export default function UpcomingTours({ tours: propTours, loading: propLoading }: UpcomingToursProps = {}) {
   // Fetch upcoming tours from API
-  const { packages: tours, loading } = usePackages({
+  const hookData = usePackages({
     upcoming: true,
     limit: 3
   });
+
+  const tours = propTours ?? hookData.packages;
+  const loading = propLoading ?? hookData.loading;
 
   if (loading) {
     return (

@@ -4,12 +4,20 @@
 import { usePackages } from '@/hooks/usePackages';
 import PackageCard from "./PackageCard";
 
-export default function FeaturedPackages() {
+interface FeaturedPackagesProps {
+  packages?: any[];
+  loading?: boolean;
+}
+
+export default function FeaturedPackages({ packages: propPackages, loading: propLoading }: FeaturedPackagesProps = {}) {
   // Fetch featured packages from API
-  const { packages, loading } = usePackages({
+  const hookData = usePackages({
     featured: true,
     limit: 6
   });
+
+  const packages = propPackages ?? hookData.packages;
+  const loading = propLoading ?? hookData.loading;
 
   if (loading) {
     return (

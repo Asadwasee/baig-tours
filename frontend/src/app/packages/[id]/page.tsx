@@ -73,8 +73,8 @@ export default function PackageDetailsPage() {
       )}
       
       <RelatedPackages 
-        currentPackageId={packageData._id} 
-        category={packageData.category} 
+        currentPackageId={packageData._id || ""} 
+        category={packageData.category || ""} 
       />
     </>
   );

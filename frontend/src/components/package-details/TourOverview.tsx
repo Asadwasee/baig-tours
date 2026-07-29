@@ -32,9 +32,9 @@ export default function TourOverview({ packageData }: TourOverviewProps) {
 
         {/* Overview Cards */}
         <div className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          <InfoCard icon={<Mountain size={22} />} title="Tour Type" value={packageData.category} />
+          <InfoCard icon={<Mountain size={22} />} title="Tour Type" value={packageData.category || "Domestic Tour"} />
           <InfoCard icon={<MapPin size={22} />} title="Destination" value={packageData.destination} />
-          <InfoCard icon={<Clock3 size={22} />} title="Duration" value={packageData.duration} />
+          <InfoCard icon={<Clock3 size={22} />} title="Duration" value={packageData.duration || "N/A"} />
           <InfoCard icon={<BedDouble size={22} />} title="Accommodation" value={packageData.hotelInfo || "Standard Hotels"} />
           <InfoCard icon={<Bus size={22} />} title="Transport" value={packageData.transportDetails || "Luxury Transport"} />
           <InfoCard icon={<UtensilsCrossed size={22} />} title="Meals" value={packageData.mealsIncluded ? "Breakfast & Dinner" : "Not Included"} />

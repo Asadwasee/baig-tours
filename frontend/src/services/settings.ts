@@ -58,6 +58,14 @@ export async function getSettings(): Promise<SettingsData> {
   return apiFetch<SettingsData>('/settings/getall');
 }
 
+// Update settings
+export async function updateSettings(data: Partial<SettingsData>): Promise<SettingsData> {
+  return apiFetch<SettingsData>('/settings/update_settings', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
 // Get about us only
 export async function getAboutUs(): Promise<AboutUsData> {
   return apiFetch<AboutUsData>('/settings/about_us');

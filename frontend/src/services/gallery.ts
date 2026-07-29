@@ -1,6 +1,7 @@
-// services/gallery.ts
 import { apiFetch } from "./api";
 import { GalleryMedia, GalleryStats } from "@/types/gallery";
+
+export type { GalleryMedia, GalleryStats };
 
 // Get all gallery media with filters
 export async function getGalleryMedia(params?: {

@@ -33,7 +33,7 @@ export default function UpcomingTourCard({ tour }: Props) {
 
         {/* Limited Seats Badge */}
         <div className="absolute left-3 top-3 xs:left-4 xs:top-4 rounded-full bg-[#F97316] px-2.5 py-1 xs:px-3 xs:py-1.5 text-[10px] xs:text-xs font-semibold text-white shadow">
-          {tour.availableSeats <= 5 ? 'Only Few Seats Left' : 'Limited Seats'}
+          {(tour.availableSeats ?? 10) <= 5 ? 'Only Few Seats Left' : 'Limited Seats'}
         </div>
       </div>
 
@@ -61,12 +61,12 @@ export default function UpcomingTourCard({ tour }: Props) {
 
           <div className="flex items-center gap-1.5 xs:gap-2">
             <CalendarDays size={14} className="xs:w-4 xs:h-4 text-[#0F766E] flex-shrink-0" />
-            <span className="truncate">Departure: {new Date(tour.departureDate).toLocaleDateString()}</span>
+            <span className="truncate">Departure: {tour.departureDate ? new Date(tour.departureDate).toLocaleDateString() : 'Upcoming'}</span>
           </div>
 
           <div className="flex items-center gap-1.5 xs:gap-2">
             <Users size={14} className="xs:w-4 xs:h-4 text-[#0F766E] flex-shrink-0" />
-            <span className="truncate">{tour.availableSeats} Seats Left</span>
+            <span className="truncate">{tour.availableSeats ?? 'Limited'} Seats Left</span>
           </div>
 
         </div>

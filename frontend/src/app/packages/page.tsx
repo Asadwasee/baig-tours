@@ -1,6 +1,7 @@
 // app/packages/page.tsx
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import PackagesHero from "@/components/packages/PackagesHero";
@@ -11,7 +12,7 @@ import PackageGrid from "@/components/packages/PackageGrid";
 import { getPackages } from "@/services/packages";
 import { Package } from "@/types/package";
 
-export default function PackagesPage() {
+function PackagesContent() {
   const searchParams = useSearchParams();
 
   // Get initial values from URL params
@@ -63,10 +64,7 @@ export default function PackagesPage() {
         if (sortValue) queryParams.append('sort', sortValue);
         
         const query = queryParams.toString();
-        console.log('🔍 Fetching packages with query:', query);
-        
         const data = await getPackages(query ? `?${query}` : '');
-        console.log('📦 Packages received:', data);
         setAllPackages(data);
       } catch (err: any) {
         console.error('❌ Error fetching packages:', err);
@@ -81,9 +79,6 @@ export default function PackagesPage() {
 
   return (
     <>
-      {/* Hero */}
-      <PackagesHero />
-
       {/* Search */}
       <SearchSection 
         search={search}
@@ -157,6 +152,25 @@ export default function PackagesPage() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
+
+export default function PackagesPage() {
+  return (
+    <>
+      {/* Hero */}
+      <PackagesHero />
+
+      <Suspense fallback={
+        <div className="space-y-4 p-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-48 animate-pulse rounded-2xl bg-gray-200" />
+          ))}
+        </div>
+      }>
+        <PackagesContent />
+      </Suspense>
     </>
   );
 }
