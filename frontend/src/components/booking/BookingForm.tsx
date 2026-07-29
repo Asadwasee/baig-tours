@@ -88,11 +88,29 @@ console.log("Validation Errors:", validationErrors);
     console.log(response);
 
     alert("Booking submitted successfully!");
+    setFormData({
+  package: packageId,
 
-  } catch (error:any) {
+  customerDetails: {
+    fullName: "",
+    email: "",
+    phone: "",
+    whatsappNumber: "",
+    city: "",
+    cnic: "",
+  },
+
+  travelDate: "",
+  adults: 1,
+  children: 0,
+  specialRequests: "",
+});
+
+setErrors({});
+
+  } catch (error) {
  console.error(error);
-  console.log(error.response?.data);
-  console.table(error.response?.data?.errors);
+  
 
 
     alert("Failed to submit booking.");
