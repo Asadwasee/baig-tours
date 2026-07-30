@@ -9,3 +9,5 @@ node_modules/
 .agents/
 .jetro/
 backend/utils/seeder.js
+code
+git
