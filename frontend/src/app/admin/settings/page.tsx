@@ -21,7 +21,7 @@ export default function AdminSettingsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [settings, setSettings] = useState<Partial<SettingsData>>({
     companyName: "Baig Tours",
-    address: "Main Office, Blue Area, Islamabad, Pakistan",
+    address: "Lahore, Pakistan",
     phone: "+92 300 1234567",
     email: "info@baigtours.com",
     whatsappNumber: "+92 300 1234567",

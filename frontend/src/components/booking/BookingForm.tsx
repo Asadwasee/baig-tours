@@ -15,7 +15,6 @@ interface BookingFormProps {
 export default function BookingForm({
   packageId,
 }: BookingFormProps) {
-   console.log("Received packageId:", packageId);
   const [formData, setFormData] = useState<BookingFormData>({
   package: packageId,
 
@@ -70,11 +69,7 @@ const handleSubmit = async (
   e: FormEvent<HTMLFormElement>
 ) => {
   e.preventDefault();
-    console.log("Submit clicked");
-
   const validationErrors = validateBookingForm(formData);
-  console.log("Form Data:", formData);
-console.log("Validation Errors:", validationErrors);
 
   if (Object.keys(validationErrors).length > 0) {
     setErrors(validationErrors);
@@ -82,10 +77,8 @@ console.log("Validation Errors:", validationErrors);
   }
   
 
-  try {
-    const response = await createBooking(formData);
-
-    console.log(response);
+    try {
+      const response = await createBooking(formData);
 
     alert("Booking submitted successfully!");
     setFormData({
@@ -121,9 +114,6 @@ setErrors({});
    
 const today = new Date().toISOString().split("T")[0];
 
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-const tomorrowDate = tomorrow.toISOString().split("T")[0];
   return (
     <section className="max-w-4xl mx-auto rounded-2xl bg-white p-8 shadow-lg">
       <h2 className="mb-8 text-center text-3xl font-bold">
@@ -329,8 +319,7 @@ const tomorrowDate = tomorrow.toISOString().split("T")[0];
             name="travelDate"
             value={formData.travelDate}
             onChange={handleChange}
-             min={today}
-  max={tomorrowDate}
+            min={today}
             className="w-full rounded-lg border p-3"
           />
 

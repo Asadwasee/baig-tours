@@ -5,6 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export interface CreateReviewData {
   customerName: string;
   customerEmail: string;
+  tourName: string;
   packageId: string;
   rating: number;
   review: string;

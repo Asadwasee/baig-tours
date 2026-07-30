@@ -15,28 +15,16 @@ export async function getPackages(
 export async function getPackageById(
   id: string
 ): Promise<Package> {
-  console.log('🔍 getPackageById called with ID:', id);
-  
   try {
-    // apiFetch will now handle the 'package' property and return it directly
     const data = await apiFetch<Package>(`/packages/${id}`);
-    
-    console.log('📦 Package data received:', data);
-    console.log('📦 Title:', data?.title);
-    console.log('📦 Price:', data?.price);
-    console.log('📦 _id:', data?._id);
-    
+
     if (!data) {
       throw new Error('No data received from API');
     }
-    
-    if (!data._id && !data.title) {
-      console.warn('⚠️ Package data missing _id or title', data);
-    }
-    
+
     return data;
   } catch (error) {
-    console.error('❌ Error in getPackageById:', error);
+    console.error('Error fetching package:', error);
     throw error;
   }
-}
+}

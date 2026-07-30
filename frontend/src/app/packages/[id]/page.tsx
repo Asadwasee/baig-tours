@@ -13,11 +13,7 @@ import VideosSection from '@/components/package-details/VideosSection';
 import FAQSection from '@/components/package-details/FAQSection';
 import ReviewsSection from '@/components/package-details/ReviewsSection';
 import RelatedPackages from '@/components/package-details/RelatedPackages';
-import ReviewForm from "./ReviewForm";
-interface ReviewsSectionProps {
-  packageId: string;
-  tourName: string;
-}
+
 
 export default function PackageDetailsPage() {
   const { id } = useParams();

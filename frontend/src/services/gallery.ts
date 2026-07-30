@@ -18,7 +18,8 @@ export interface GalleryStats {
   customerMemories: number;
 }
 
-export type { GalleryMedia, GalleryStats };
+
+
 
 // Get all gallery media with filters
 export async function getGalleryMedia(params?: {
@@ -35,26 +36,17 @@ export async function getGalleryMedia(params?: {
   
   const query = queryParams.toString();
   const endpoint = `/gallery/media/getall${query ? `?${query}` : ''}`;
-  
-  console.log('🔄 Fetching gallery from:', endpoint);
-  
-  // apiFetch will handle the { success, data } wrapper automatically
+
   const response = await apiFetch<GalleryMedia[]>(endpoint);
-  
-  console.log('📦 Gallery response after apiFetch:', response);
-  
-  // If response is already an array, return it
+
   if (Array.isArray(response)) {
     return response;
   }
-  
-  // If response has a data property (just in case)
+
   if (response && (response as any).data && Array.isArray((response as any).data)) {
     return (response as any).data;
   }
-  
-  // If response is empty or invalid, return empty array
-  console.warn('⚠️ Unexpected gallery response format:', response);
+
   return [];
 }
 
@@ -73,7 +65,6 @@ export async function getGalleryByCategory(category: string): Promise<GalleryMed
 export async function getGalleryStats(): Promise<GalleryStats> {
   try {
     const response = await apiFetch<any>('/gallery/media/media_stats');
-    console.log('📊 Gallery stats response:', response);
     
     // If response has the stats directly
     if (response && typeof response === 'object') {

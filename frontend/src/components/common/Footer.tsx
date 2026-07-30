@@ -85,12 +85,12 @@ export default function Footer() {
 
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-[#F97316]" />
-                <span>Islamabad, Pakistan</span>
+                <span>Lahore, Pakistan</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-[#F97316]" />
-                <span>+92 XXX XXXXXXX</span>
+                <span>+92 300 1234567</span>
               </div>
 
               <div className="flex items-center gap-3">
